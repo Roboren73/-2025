@@ -109,12 +109,12 @@
             <p class="text-secondary font-medium">亲爱的妖怪，今天也要元气满满地跑步哦！</p>
         </div>
         
-        <!-- 红心显示区域 - 调整为圆圈的50% -->
+        <!-- 红心显示区域 - 使用视窗单位控制大小 -->
         <div class="relative mb-10 w-full max-w-md">
             <div id="pulseRing" class="w-full aspect-square rounded-full border-8 border-primary/20 flex items-center justify-center pulse-ring mx-auto"></div>
             <div id="heartContainer" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] rounded-full bg-white flex items-center justify-center shadow-lg">
-                <!-- 调整为圆圈的50%大小，增强视觉效果 -->
-                <i class="fa fa-heart text-[50%] text-red-500 heart-beat"></i>
+                <!-- 使用30vw视窗单位，确保在任何设备上都是屏幕宽度的30% -->
+                <i class="fa fa-heart text-[30vw] max-w-[200px] text-red-500 heart-beat"></i>
             </div>
             <!-- 装饰元素 -->
             <div class="absolute -top-3 -left-3 w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white float">
