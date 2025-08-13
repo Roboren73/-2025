@@ -736,6 +736,11 @@
             stepTimestamps = [];
             lastStepTime = 0;
             
+            // 强制初始化显示为0
+            durationEl.textContent = "00:00";
+            distanceEl.textContent = "0.00 公里";
+            paceEl.textContent = "00:00";
+            
             // 更新按钮状态
             startBtn.classList.add('start-btn-inactive');
             stopBtn.classList.remove('stop-btn-inactive');
@@ -748,6 +753,8 @@
             statusIndicator.classList.remove('bg-pink-100', 'text-primary');
             statusIndicator.classList.add('bg-secondary/10', 'text-secondary');
             
+            // 修复：确保定时器正确启动
+            if (timer) clearInterval(timer);
             timer = setInterval(updateStats, 1000);
             startCadenceGuide();
             
@@ -811,19 +818,29 @@
             const seconds = Math.floor((durationMs % 60000) / 1000);
             durationEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
+            // 修复：即使没有手动计步，也根据步频估算距离
+            if (totalSteps === 0) {
+                // 根据步频估算步数（每分钟步数 × 分钟数）
+                const minutesRunning = durationMs / 60000;
+                const estimatedSteps = Math.floor(TARGET_CADENCE * minutesRunning);
+                distance = (estimatedSteps * STEP_LENGTH) / 1000;
+            }
+            
             // 计算配速 (分/公里)
             if (distance > 0) {
                 const totalSeconds = durationMs / 1000;
                 const paceMinutes = Math.floor(totalSeconds / distance / 60);
                 const paceSeconds = Math.floor((totalSeconds / distance) % 60);
                 paceEl.textContent = `${paceMinutes.toString().padStart(2, '0')}:${paceSeconds.toString().padStart(2, '0')}`;
+            } else {
+                paceEl.textContent = "00:00";
             }
             
             updateUI();
         }
         
         function updateUI() {
-            // 更新距离显示，保留两位小数
+            // 修复：确保距离显示正确更新
             distanceEl.textContent = `${distance.toFixed(2)} 公里`;
         }
         
@@ -851,6 +868,9 @@
                             heartIcon.style.transform = '';
                         }
                     }, 100);
+                    
+                    // 自动计步 - 按照设定的步频自动增加步数
+                    recordStep();
                     
                     guideInterval = setTimeout(guideStep, intervalMs);
                 }
