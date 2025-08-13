@@ -1,1016 +1,786 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>给妖怪的跑步助手</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+&#x3C;main class=&#x22;container mx-auto px-4 py-8&#x22;&#x3E;
+    &#x3C;!-- &#x4E13;&#x5C5E;&#x95EE;&#x5019;&#x8BED; --&#x3E;
+    &#x3C;div class=&#x22;mb-6 text-center&#x22;&#x3E;
+        &#x3C;p id=&#x22;greeting&#x22; class=&#x22;text-secondary font-medium text-lg&#x22;&#x3E;&#x4EB2;&#x7231;&#x7684;&#x5996;&#x602A;&#xFF0C;&#x4ECA;&#x5929;&#x4E5F;&#x8981;&#x5143;&#x6C14;&#x6EE1;&#x6EE1;&#x5730;&#x8DD1;&#x6B65;&#x54E6;&#xFF01;&#x3C;/p&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 红心显示区域 -->
+
+    &#x3C;div class=&#x22;relative mb-10 w-full max-w-md mx-auto&#x22;&#x3E;
+        &#x3C;div id=&#x22;pulseRing&#x22; class=&#x22;w-full aspect-square rounded-full border-8 border-primary/20 flex items-center justify-center pulse-ring&#x22;&#x3E;&#x3C;/div&#x3E;
+        &#x3C;div id=&#x22;heartContainer&#x22; class=&#x22;absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] rounded-full bg-white flex items-center justify-center shadow-lg&#x22;&#x3E;
+            &#x3C;i id=&#x22;beatIcon&#x22; class=&#x22;fa fa-heart text-red-500 heart-beat&#x22;&#x3E;&#x3C;/i&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;!-- &#x88C5;&#x9970;&#x5143;&#x7D20; --&#x3E;
+        &#x3C;div class=&#x22;absolute -top-3 -left-3 w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white float&#x22;&#x3E;
+            &#x3C;i class=&#x22;fa fa-bolt&#x22;&#x3E;&#x3C;/i&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;div class=&#x22;absolute -bottom-2 -right-2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-white float&#x22; style=&#x22;animation-delay: 1s&#x22;&#x3E;
+            &#x3C;i class=&#x22;fa fa-heart&#x22;&#x3E;&#x3C;/i&#x3E;
+        &#x3C;/div&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 四拍节奏可视化 -->
+
+    &#x3C;div class=&#x22;bg-white rounded-xl p-4 shadow-md mb-8 max-w-md mx-auto&#x22;&#x3E;
+        &#x3C;div class=&#x22;flex justify-between items-center mb-4&#x22;&#x3E;
+            &#x3C;h2 class=&#x22;font-medium text-gray-700&#x22;&#x3E;&#x5F53;&#x524D;&#x8282;&#x594F;&#x3C;/h2&#x3E;
+            &#x3C;div class=&#x22;flex items-center gap-2&#x22;&#x3E;
+                &#x3C;span class=&#x22;text-xs text-gray-500&#x22;&#x3E;&#x6B65;&#x9891;:&#x3C;/span&#x3E;
+                &#x3C;span id=&#x22;bpmDisplay&#x22; class=&#x22;font-medium text-primary&#x22;&#x3E;150&#x3C;/span&#x3E;
+            &#x3C;/div&#x3E;
+        &#x3C;/div&#x3E;
+
+        <!-- 四拍可视化 -->
+
+        &#x3C;div class=&#x22;grid grid-cols-4 gap-2 mb-2&#x22;&#x3E;
+            &#x3C;div id=&#x22;beat1&#x22; class=&#x22;h-16 rounded-lg border-2 border-gray-200 flex items-center justify-center text-gray-400&#x22;&#x3E;
+                &#x3C;span&#x3E;1&#x3C;/span&#x3E;
+            &#x3C;/div&#x3E;
+            &#x3C;div id=&#x22;beat2&#x22; class=&#x22;h-16 rounded-lg border-2 border-gray-200 flex items-center justify-center text-gray-400&#x22;&#x3E;
+                &#x3C;span&#x3E;2&#x3C;/span&#x3E;
+            &#x3C;/div&#x3E;
+            &#x3C;div id=&#x22;beat3&#x22; class=&#x22;h-16 rounded-lg border-2 border-gray-200 flex items-center justify-center text-gray-400&#x22;&#x3E;
+                &#x3C;span&#x3E;3&#x3C;/span&#x3E;
+            &#x3C;/div&#x3E;
+            &#x3C;div id=&#x22;beat4&#x22; class=&#x22;h-16 rounded-lg border-2 border-gray-200 flex items-center justify-center text-gray-400&#x22;&#x3E;
+                &#x3C;span&#x3E;4&#x3C;/span&#x3E;
+            &#x3C;/div&#x3E;
+        &#x3C;/div&#x3E;
+
+        <!-- 音效说明 -->
+
+        &#x3C;div class=&#x22;flex gap-4 text-sm text-center&#x22;&#x3E;
+            &#x3C;div class=&#x22;flex-1&#x22;&#x3E;
+                &#x3C;div class=&#x22;w-4 h-4 rounded-full bg-aSound mx-auto mb-1&#x22;&#x3E;&#x3C;/div&#x3E;
+                &#x3C;span&#x3E;&#x6EF4; - &#x53F3;&#x811A;&#x3C;/span&#x3E;
+            &#x3C;/div&#x3E;
+            &#x3C;div class=&#x22;flex-1&#x22;&#x3E;
+                &#x3C;div class=&#x22;w-4 h-4 rounded-full bg-bSound mx-auto mb-1&#x22;&#x3E;&#x3C;/div&#x3E;
+                &#x3C;span&#x3E;&#x7B54; - &#x5DE6;&#x811A;&#x3C;/span&#x3E;
+            &#x3C;/div&#x3E;
+        &#x3C;/div&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 数据统计 -->
+
+    &#x3C;div class=&#x22;grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-2xl mx-auto&#x22;&#x3E;
+        &#x3C;div class=&#x22;bg-white rounded-xl p-4 shadow-md&#x22;&#x3E;
+            &#x3C;p class=&#x22;text-gray-500 text-sm mb-1&#x22;&#x3E;&#x7528;&#x65F6;&#x3C;/p&#x3E;
+            &#x3C;p id=&#x22;duration&#x22; class=&#x22;text-xl font-bold text-primary&#x22;&#x3E;00:00&#x3C;/p&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;div class=&#x22;bg-white rounded-xl p-4 shadow-md&#x22;&#x3E;
+            &#x3C;p class=&#x22;text-gray-500 text-sm mb-1&#x22;&#x3E;&#x8DDD;&#x79BB;&#x3C;/p&#x3E;
+            &#x3C;p id=&#x22;distance&#x22; class=&#x22;text-xl font-bold text-primary&#x22;&#x3E;0.00 &#x516C;&#x91CC;&#x3C;/p&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;div class=&#x22;bg-white rounded-xl p-4 shadow-md&#x22;&#x3E;
+            &#x3C;p class=&#x22;text-gray-500 text-sm mb-1&#x22;&#x3E;&#x914D;&#x901F;&#x3C;/p&#x3E;
+            &#x3C;p id=&#x22;pace&#x22; class=&#x22;text-xl font-bold text-primary&#x22;&#x3E;00:00&#x3C;/p&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;div class=&#x22;bg-white rounded-xl p-4 shadow-md&#x22;&#x3E;
+            &#x3C;p class=&#x22;text-gray-500 text-sm mb-1&#x22;&#x3E;&#x5F53;&#x524D;&#x516C;&#x91CC;&#x3C;/p&#x3E;
+            &#x3C;p id=&#x22;currentKilometer&#x22; class=&#x22;text-xl font-bold text-primary&#x22;&#x3E;0&#x3C;/p&#x3E;
+        &#x3C;/div&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 控制按钮 -->
+
+    &#x3C;div class=&#x22;flex flex-wrap justify-center gap-4 mb-10&#x22;&#x3E;
+        &#x3C;button id=&#x22;startBtn&#x22; class=&#x22;bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-colors&#x22;&#x3E;
+            &#x3C;i class=&#x22;fa fa-play mr-2&#x22;&#x3E;&#x3C;/i&#x3E;&#x5F00;&#x59CB;&#x8DD1;&#x6B65;
+        &#x3C;/button&#x3E;
+        &#x3C;button id=&#x22;pauseBtn&#x22; class=&#x22;bg-gray-200 text-gray-600 px-6 py-3 rounded-lg transition-colors&#x22; disabled&#x3E;
+            &#x3C;i class=&#x22;fa fa-pause mr-2&#x22;&#x3E;&#x3C;/i&#x3E;&#x6682;&#x505C;
+        &#x3C;/button&#x3E;
+        &#x3C;button id=&#x22;resetBtn&#x22; class=&#x22;bg-gray-200 text-gray-600 px-6 py-3 rounded-lg transition-colors&#x22; disabled&#x3E;
+            &#x3C;i class=&#x22;fa fa-refresh mr-2&#x22;&#x3E;&#x3C;/i&#x3E;&#x91CD;&#x7F6E;
+        &#x3C;/button&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 节奏方案选择 -->
+
+    &#x3C;div class=&#x22;bg-white rounded-xl p-4 shadow-md mb-8&#x22;&#x3E;
+        &#x3C;h2 class=&#x22;font-medium text-gray-700 mb-4&#x22;&#x3E;&#x9009;&#x62E9;&#x8282;&#x594F;&#x65B9;&#x6848;&#x3C;/h2&#x3E;
+        &#x3C;div class=&#x22;grid grid-cols-1 md:grid-cols-2 gap-3&#x22;&#x3E;
+            &#x3C;!-- &#x65B9;&#x6848;1&#xFF1A;&#x7ECF;&#x5178;&#x5DE6;&#x53F3;&#x4EA4;&#x66FF; --&#x3E;
+            &#x3C;div class=&#x22;pattern-btn border border-gray-200 rounded-lg p-3 hover:border-primary cursor-pointer transition-colors&#x22; data-pattern=&#x22;1&#x22;&#x3E;
+                &#x3C;h3 class=&#x22;font-medium text-primary mb-1&#x22;&#x3E;1. &#x7ECF;&#x5178;&#x5DE6;&#x53F3;&#x4EA4;&#x66FF;&#x3C;/h3&#x3E;
+                &#x3C;p class=&#x22;text-xs text-gray-500 mb-2&#x22;&#x3E;4&#x62CD;4&#x97F3; &#xB7; &#x5747;&#x5300;&#x4EA4;&#x66FF;&#x3C;/p&#x3E;
+                &#x3C;div class=&#x22;flex gap-1&#x22;&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-b&#x22;&#x3E;&#x7B54;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-b&#x22;&#x3E;&#x7B54;&#x3C;/span&#x3E;
+                &#x3C;/div&#x3E;
+            &#x3C;/div&#x3E;
+
+            <!-- 方案2：双倍步频 -->
+
+            &#x3C;div class=&#x22;pattern-btn border border-gray-200 rounded-lg p-3 hover:border-primary cursor-pointer transition-colors&#x22; data-pattern=&#x22;2&#x22;&#x3E;
+                &#x3C;h3 class=&#x22;font-medium text-primary mb-1&#x22;&#x3E;2. &#x53CC;&#x500D;&#x6B65;&#x9891;&#x3C;/h3&#x3E;
+                &#x3C;p class=&#x22;text-xs text-gray-500 mb-2&#x22;&#x3E;4&#x62CD;4&#x97F3; &#xB7; &#x5C0F;&#x6B65;&#x5FEB;&#x9891;&#x3C;/p&#x3E;
+                &#x3C;div class=&#x22;flex gap-1&#x22;&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-b&#x22;&#x3E;&#x7B54;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-b&#x22;&#x3E;&#x7B54;&#x3C;/span&#x3E;
+                &#x3C;/div&#x3E;
+            &#x3C;/div&#x3E;
+
+            <!-- 方案3：重点步 -->
+
+            &#x3C;div class=&#x22;pattern-btn border border-gray-200 rounded-lg p-3 hover:border-primary cursor-pointer transition-colors&#x22; data-pattern=&#x22;3&#x22;&#x3E;
+                &#x3C;h3 class=&#x22;font-medium text-primary mb-1&#x22;&#x3E;3. &#x91CD;&#x70B9;&#x6B65;&#x3C;/h3&#x3E;
+                &#x3C;p class=&#x22;text-xs text-gray-500 mb-2&#x22;&#x3E;4&#x62CD;3&#x97F3; &#xB7; &#x5F3A;&#x8C03;&#x8D77;&#x6B65;&#x3C;/p&#x3E;
+                &#x3C;div class=&#x22;flex gap-1&#x22;&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-b&#x22;&#x3E;&#x7B54;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs border border-gray-200&#x22;&#x3E;-&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                &#x3C;/div&#x3E;
+            &#x3C;/div&#x3E;
+
+            <!-- 方案4：切分节奏 -->
+
+            &#x3C;div class=&#x22;pattern-btn border border-gray-200 rounded-lg p-3 hover:border-primary cursor-pointer transition-colors&#x22; data-pattern=&#x22;4&#x22;&#x3E;
+                &#x3C;h3 class=&#x22;font-medium text-primary mb-1&#x22;&#x3E;4. &#x5207;&#x5206;&#x8282;&#x594F;&#x3C;/h3&#x3E;
+                &#x3C;p class=&#x22;text-xs text-gray-500 mb-2&#x22;&#x3E;4&#x62CD;3&#x97F3; &#xB7; &#x8282;&#x594F;&#x53D8;&#x5316;&#x3C;/p&#x3E;
+                &#x3C;div class=&#x22;flex gap-1&#x22;&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs border border-gray-200&#x22;&#x3E;-&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-b&#x22;&#x3E;&#x7B54;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-b&#x22;&#x3E;&#x7B54;&#x3C;/span&#x3E;
+                &#x3C;/div&#x3E;
+            &#x3C;/div&#x3E;
+
+            <!-- 方案5：华尔兹韵律 -->
+
+            &#x3C;div class=&#x22;pattern-btn border border-gray-200 rounded-lg p-3 hover:border-primary cursor-pointer transition-colors&#x22; data-pattern=&#x22;5&#x22;&#x3E;
+                &#x3C;h3 class=&#x22;font-medium text-primary mb-1&#x22;&#x3E;5. &#x534E;&#x5C14;&#x5179;&#x97F5;&#x5F8B;&#x3C;/h3&#x3E;
+                &#x3C;p class=&#x22;text-xs text-gray-500 mb-2&#x22;&#x3E;4&#x62CD;3&#x97F3; &#xB7; &#x6D41;&#x52A8;&#x611F;&#x3C;/p&#x3E;
+                &#x3C;div class=&#x22;flex gap-1&#x22;&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs border border-gray-200&#x22;&#x3E;-&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-b&#x22;&#x3E;&#x7B54;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                &#x3C;/div&#x3E;
+            &#x3C;/div&#x3E;
+
+            <!-- 方案6：前导步 -->
+
+            &#x3C;div class=&#x22;pattern-btn border border-gray-200 rounded-lg p-3 hover:border-primary cursor-pointer transition-colors&#x22; data-pattern=&#x22;6&#x22;&#x3E;
+                &#x3C;h3 class=&#x22;font-medium text-primary mb-1&#x22;&#x3E;6. &#x524D;&#x5BFC;&#x6B65;&#x3C;/h3&#x3E;
+                &#x3C;p class=&#x22;text-xs text-gray-500 mb-2&#x22;&#x3E;4&#x62CD;3&#x97F3; &#xB7; &#x542F;&#x52A8;&#x5F3A;&#x8C03;&#x3C;/p&#x3E;
+                &#x3C;div class=&#x22;flex gap-1&#x22;&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-a&#x22;&#x3E;&#x6EF4;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs sound-b&#x22;&#x3E;&#x7B54;&#x3C;/span&#x3E;
+                    &#x3C;span class=&#x22;w-6 h-6 rounded flex items-center justify-center text-xs border border-gray-200&#x22;&#x3E;-&#x3C;/span&#x3E;
+                &#x3C;/div&#x3E;
+            &#x3C;/div&#x3E;
+        &#x3C;/div&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- BPM调节 -->
+
+    &#x3C;div class=&#x22;bg-white rounded-xl p-4 shadow-md max-w-md mx-auto mb-8&#x22;&#x3E;
+        &#x3C;div class=&#x22;flex justify-between items-center mb-2&#x22;&#x3E;
+            &#x3C;label class=&#x22;text-sm text-gray-600&#x22;&#x3E;&#x6B65;&#x9891;&#x8C03;&#x8282; (140-160 BPM)&#x3C;/label&#x3E;
+            &#x3C;span id=&#x22;currentBpm&#x22; class=&#x22;font-medium text-primary&#x22;&#x3E;150&#x3C;/span&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;input type=&#x22;range&#x22; id=&#x22;bpmSlider&#x22; min=&#x22;140&#x22; max=&#x22;160&#x22; value=&#x22;150&#x22; step=&#x22;5&#x22;
+               class=&#x22;w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer&#x22;&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 添加到主屏幕提示按钮 -->
+
+    &#x3C;button id=&#x22;addHomeBtn&#x22; class=&#x22;mt-2 w-full max-w-md mx-auto px-6 py-2 bg-pink-100 hover:bg-pink-200 text-primary rounded-lg text-sm flex items-center justify-center gap-2 transition-all-300&#x22;&#x3E;
+        &#x3C;i class=&#x22;fa fa-home&#x22;&#x3E;&#x3C;/i&#x3E;
+        &#x3C;span&#x3E;&#x6DFB;&#x52A0;&#x5230;&#x684C;&#x9762;&#xFF0C;&#x65B9;&#x4FBF;&#x5996;&#x602A;&#x4E0B;&#x6B21;&#x4F7F;&#x7528;&#x3C;/span&#x3E;
+    &#x3C;/button&#x3E;
+&#x3C;/main&#x3E;
+
+<!-- 信息模态框 -->
+
+&#x3C;div id=&#x22;infoModal&#x22; class=&#x22;fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden&#x22;&#x3E;
+    &#x3C;div class=&#x22;bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl transform transition-all&#x22;&#x3E;
+        &#x3C;div class=&#x22;flex justify-between items-start mb-4&#x22;&#x3E;
+            &#x3C;h2 class=&#x22;text-2xl font-bold text-primary&#x22;&#x3E;&#x7ED9;&#x6211;&#x5BB6;&#x5996;&#x602A;&#x7684;&#x5C0F;&#x63D0;&#x793A;&#x3C;/h2&#x3E;
+            &#x3C;button id=&#x22;closeInfoBtn&#x22; class=&#x22;text-gray-500 hover:text-gray-700&#x22;&#x3E;
+                &#x3C;i class=&#x22;fa fa-times text-xl&#x22;&#x3E;&#x3C;/i&#x3E;
+            &#x3C;/button&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;div id=&#x22;modalContent&#x22; class=&#x22;space-y-4 text-gray-700&#x22;&#x3E;
+            &#x3C;p&#x3E;&#x8DD1;&#x6B65;&#x65F6;&#x8DDF;&#x7740;&#x5927;&#x7EA2;&#x5FC3;&#x7684;&#x8282;&#x62CD;&#x8DD1;&#x5C31;&#x5BF9;&#x5566;&#xFF0C;&#x6709;&#x516D;&#x79CD;&#x8282;&#x594F;&#x53EF;&#x4EE5;&#x9009;&#x62E9;&#x54E6;~&#x3C;/p&#x3E;
+            &#x3C;p&#x3E;&#x6BCF;&#x79CD;&#x8282;&#x594F;&#x90FD;&#x7528;&#x22;&#x6EF4;&#x22;&#x548C;&#x22;&#x7B54;&#x22;&#x4E24;&#x79CD;&#x58F0;&#x97F3;&#xFF0C;&#x22;&#x6EF4;&#x22;&#x4EE3;&#x8868;&#x53F3;&#x811A;&#xFF0C;&#x22;&#x7B54;&#x22;&#x4EE3;&#x8868;&#x5DE6;&#x811A;~&#x3C;/p&#x3E;
+            &#x3C;p&#x3E;&#x53EF;&#x4EE5;&#x6839;&#x636E;&#x81EA;&#x5DF1;&#x7684;&#x8DD1;&#x6B65;&#x4E60;&#x60EF;&#x8C03;&#x6574;&#x6B65;&#x9891;&#xFF0C;&#x627E;&#x5230;&#x6700;&#x8212;&#x670D;&#x7684;&#x8282;&#x594F;~&#x3C;/p&#x3E;
+            &#x3C;p&#x3E;&#x6570;&#x636E;&#x533A;&#x57DF;&#x4F1A;&#x663E;&#x793A;&#x4F60;&#x8DD1;&#x4E86;&#x591A;&#x5C11;&#x516C;&#x91CC;&#xFF0C;&#x4E00;&#x6B65;&#x6309;0.7&#x7C73;&#x8BA1;&#x7B97;&#x54E6;~&#x3C;/p&#x3E;
+            &#x3C;p class=&#x22;pt-2 border-t border-pink-100&#x22;&#x3E;&#x3C;i class=&#x22;fa fa-heart text-primary mr-2&#x22;&#x3E;&#x3C;/i&#x3E;
+            &#x5996;&#x602A;&#x8DD1;&#x6B65;&#x7684;&#x65F6;&#x5019;&#x8981;&#x6CE8;&#x610F;&#x5B89;&#x5168;&#xFF0C;&#x8DD1;&#x5B8C;&#x6B65;&#x8BB0;&#x5F97;&#x62C9;&#x4F38;&#x54E6;&#xFF0C;&#x7231;&#x4F60;~&#x3C;/p&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;button id=&#x22;gotItBtn&#x22; class=&#x22;mt-6 w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all-300&#x22;&#x3E;
+            &#x77E5;&#x9053;&#x5566;&#xFF0C;&#x8C22;&#x8C22;~
+        &#x3C;/button&#x3E;
+    &#x3C;/div&#x3E;
+&#x3C;/div&#x3E;
+
+&#x3C;footer class=&#x22;bg-white/80 backdrop-blur-md py-4 text-center text-gray-500 text-sm&#x22;&#x3E;
+    &#x3C;div class=&#x22;container mx-auto px-4&#x22;&#x3E;
+        &#x3C;p&#x3E;&#x7ED9;&#x6211;&#x6700;&#x7231;&#x7684;&#x5996;&#x602A; &#x26;copy; &#x6C38;&#x8FDC;&#x6709;&#x6548;&#x3C;/p&#x3E;
+    &#x3C;/div&#x3E;
+&#x3C;/footer&#x3E;
+
+&#x3C;script&#x3E;
+    // &#x5168;&#x5C40;&#x72B6;&#x6001;&#x7BA1;&#x7406;
+    const state = {
+        isRunning: false,
+        isPaused: false,
+        startTime: null,
+        pauseTime: null,
+        totalPausedTime: 0,
+        distance: 0,
+        totalSeconds: 0,
+        currentKilometer: 0,
+        lastKilometer: 0,
+        cadence: 150, // BPM
+        currentBeat: 0, // 0-3&#x5BF9;&#x5E94;1-4&#x62CD;
+        currentPattern: 1,
+        beatInterval: null,
+        timerInterval: null,
+        wakeLock: null,
+        audioContext: null,
+        isAudioReady: false,
+        soundBuffers: {
+            a: null, // &#x97F3;&#x6548;A&#xFF08;&#x6EF4;&#xFF09;
+            b: null  // &#x97F3;&#x6548;B&#xFF08;&#x7B54;&#xFF09;
+        },
+        stepLength: 0.7 // &#x6B65;&#x957F;(&#x7C73;)
+    };
     
-    <!-- 配置Tailwind自定义颜色和字体 -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#E94498',
-                        secondary: '#9333EA',
-                        accent: '#FBBF24',
-                        light: '#FFF5F9',
-                        dark: '#4C1D95'
-                    },
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
+    // &#x516D;&#x79CD;&#x8282;&#x594F;&#x65B9;&#x6848;&#x5B9A;&#x4E49;&#xFF08;4&#x62CD;&#x4E3A;&#x4E00;&#x4E2A;&#x5FAA;&#x73AF;&#xFF0C;&#x6BCF;&#x4E2A;&#x4F4D;&#x7F6E;&#x4E3A;&#x27;A&#x27;/&#x27;B&#x27;/&#x27;-&#x27;&#xFF09;
+    const patterns = {
+        1: [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;A&#x27;, &#x27;B&#x27;], // &#x7ECF;&#x5178;&#x5DE6;&#x53F3;&#x4EA4;&#x66FF;&#xFF08;4&#x97F3;&#xFF09;
+        2: [&#x27;A&#x27;, &#x27;A&#x27;, &#x27;B&#x27;, &#x27;B&#x27;], // &#x53CC;&#x500D;&#x6B65;&#x9891;&#xFF08;4&#x97F3;&#xFF09;
+        3: [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;-&#x27;, &#x27;A&#x27;], // &#x91CD;&#x70B9;&#x6B65;&#xFF08;3&#x97F3;&#xFF09;
+        4: [&#x27;A&#x27;, &#x27;-&#x27;, &#x27;B&#x27;, &#x27;B&#x27;], // &#x5207;&#x5206;&#x8282;&#x594F;&#xFF08;3&#x97F3;&#xFF09;
+        5: [&#x27;A&#x27;, &#x27;-&#x27;, &#x27;B&#x27;, &#x27;A&#x27;], // &#x534E;&#x5C14;&#x5179;&#x97F5;&#x5F8B;&#xFF08;3&#x97F3;&#xFF09;
+        6: [&#x27;A&#x27;, &#x27;A&#x27;, &#x27;B&#x27;, &#x27;-&#x27;]  // &#x524D;&#x5BFC;&#x6B65;&#xFF08;3&#x97F3;&#xFF09;
+    };
     
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .pulse-ring {
-                animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-            }
-            .heart-beat {
-                animation: heart-beat 1s ease-in-out infinite;
-            }
-            .float {
-                animation: float 3s ease-in-out infinite;
-            }
-            .card-shadow {
-                box-shadow: 0 10px 25px -5px rgba(233, 68, 152, 0.1), 0 8px 10px -6px rgba(233, 68, 152, 0.1);
-            }
-            .transition-all-300 {
-                transition: all 300ms ease-in-out;
-            }
-            .ios-haptic {
-                -webkit-tap-highlight-color: transparent;
-            }
-            .android-ripple {
-                position: relative;
-                overflow: hidden;
-            }
-            .android-ripple:after {
-                content: "";
-                display: block;
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                top: 0;
-                left: 0;
-                pointer-events: none;
-                background-image: radial-gradient(circle, #000 10%, transparent 10.01%);
-                background-repeat: no-repeat;
-                background-position: 50%;
-                transform: scale(10, 10);
-                opacity: 0;
-                transition: transform .5s, opacity 1s;
-            }
-            .android-ripple:active:after {
-                transform: scale(0, 0);
-                opacity: .3;
-                transition: 0s;
-            }
-            .start-btn {
-                @apply bg-gradient-to-r from-primary to-pink-500 text-white font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95;
-            }
-            .start-btn-inactive {
-                @apply bg-gradient-to-r from-gray-200 to-gray-300 text-gray-500 cursor-not-allowed;
-            }
-            .stop-btn {
-                @apply bg-gradient-to-r from-secondary to-purple-500 text-white font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95;
-            }
-            .stop-btn-inactive {
-                @apply bg-gradient-to-r from-gray-200 to-gray-300 text-gray-500 cursor-not-allowed;
-            }
-            .cadence-btn {
-                @apply bg-white text-dark border border-gray-200 rounded-full shadow hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95;
-            }
+    // DOM&#x5143;&#x7D20;
+    const elements = {
+        startBtn: document.getElementById(&#x27;startBtn&#x27;),
+        pauseBtn: document.getElementById(&#x27;pauseBtn&#x27;),
+        resetBtn: document.getElementById(&#x27;resetBtn&#x27;),
+        durationEl: document.getElementById(&#x27;duration&#x27;),
+        distanceEl: document.getElementById(&#x27;distance&#x27;),
+        paceEl: document.getElementById(&#x27;pace&#x27;),
+        currentKilometerEl: document.getElementById(&#x27;currentKilometer&#x27;),
+        statusText: null, // &#x52A8;&#x6001;&#x751F;&#x6210;&#x72B6;&#x6001;&#x6587;&#x672C;
+        pulseRing: document.getElementById(&#x27;pulseRing&#x27;),
+        beatIcon: document.getElementById(&#x27;beatIcon&#x27;),
+        infoBtn: document.getElementById(&#x27;infoBtn&#x27;),
+        infoModal: document.getElementById(&#x27;infoModal&#x27;),
+        closeInfoBtn: document.getElementById(&#x27;closeInfoBtn&#x27;),
+        gotItBtn: document.getElementById(&#x27;gotItBtn&#x27;),
+        bpmSlider: document.getElementById(&#x27;bpmSlider&#x27;),
+        bpmDisplay: document.getElementById(&#x27;bpmDisplay&#x27;),
+        currentBpm: document.getElementById(&#x27;currentBpm&#x27;),
+        beatElements: [
+            document.getElementById(&#x27;beat1&#x27;),
+            document.getElementById(&#x27;beat2&#x27;),
+            document.getElementById(&#x27;beat3&#x27;),
+            document.getElementById(&#x27;beat4&#x27;)
+        ],
+        patternBtns: document.querySelectorAll(&#x27;.pattern-btn&#x27;),
+        greeting: document.getElementById(&#x27;greeting&#x27;)
+    };
+    
+    // &#x521D;&#x59CB;&#x5316;&#x97F3;&#x9891;
+    async function initAudio() {
+        if (state.audioContext) return;
+        
+        try {
+            state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // &#x521B;&#x5EFA;&#x97F3;&#x6548;A&#xFF08;&#x6EF4; - &#x9AD8;&#x9891;&#x77ED;&#x4FC3;&#xFF09;
+            state.soundBuffers.a = await createTone(1047, 0.1, 0.15); // &#x9891;&#x7387;1047Hz&#xFF0C;&#x65F6;&#x957F;0.1s
+            
+            // &#x521B;&#x5EFA;&#x97F3;&#x6548;B&#xFF08;&#x7B54; - &#x4F4E;&#x9891;&#x7A0D;&#x539A;&#xFF09;
+            state.soundBuffers.b = await createTone(523, 0.12, 0.2); // &#x9891;&#x7387;523Hz&#xFF0C;&#x65F6;&#x957F;0.12s
+            
+            state.isAudioReady = true;
+            console.log(&#x27;&#x97F3;&#x9891;&#x521D;&#x59CB;&#x5316;&#x5B8C;&#x6210;&#x27;);
+        } catch (err) {
+            console.error(&#x27;&#x97F3;&#x9891;&#x521D;&#x59CB;&#x5316;&#x5931;&#x8D25;:&#x27;, err);
+            showGreeting(&#x22;&#x9700;&#x8981;&#x70B9;&#x51FB;&#x9875;&#x9762;&#x542F;&#x7528;&#x97F3;&#x9891;&#x529F;&#x80FD;&#x54E6;~&#x22;, 3000);
+        }
+    }
+    
+    // &#x521B;&#x5EFA;&#x57FA;&#x7840;&#x97F3;&#x8C03;
+    function createTone(frequency, duration, gain) {
+        return new Promise((resolve) =&#x3E; {
+            const oscillator = state.audioContext.createOscillator();
+            const gainNode = state.audioContext.createGain();
+            const destination = state.audioContext.createMediaStreamDestination();
+            const recorder = new MediaRecorder(destination.stream);
+            const audioChunks = [];
+            
+            oscillator.type = &#x27;sine&#x27;;
+            oscillator.frequency.setValueAtTime(frequency, state.audioContext.currentTime);
+            gainNode.gain.setValueAtTime(gain, state.audioContext.currentTime);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(destination);
+            
+            recorder.ondataavailable = (e) =&#x3E; audioChunks.push(e.data);
+            recorder.onstop = async () =&#x3E; {
+                const audioBlob = new Blob(audioChunks);
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const audioBuffer = await state.audioContext.decodeAudioData(arrayBuffer);
+                resolve(audioBuffer);
+            };
+            
+            oscillator.start();
+            recorder.start();
+            
+            // &#x8BBE;&#x5B9A;&#x97F3;&#x6548;&#x65F6;&#x957F;
+            setTimeout(() =&#x3E; {
+                recorder.stop();
+                oscillator.stop();
+            }, duration * 1000);
+        });
+    }
+    
+    // &#x64AD;&#x653E;&#x6307;&#x5B9A;&#x97F3;&#x6548;
+    function playSound(type) {
+        if (!state.isAudioReady || state.audioContext.state === &#x27;suspended&#x27;) {
+            state.audioContext.resume();
+            return;
         }
         
-        @keyframes pulse-ring {
-            0% { transform: scale(0.93); box-shadow: 0 0 0 0 rgba(233, 68, 152, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(233, 68, 152, 0); }
-            100% { transform: scale(0.93); box-shadow: 0 0 0 0 rgba(233, 68, 152, 0); }
-        }
+        const buffer = state.soundBuffers[type];
+        if (!buffer) return;
         
-        @keyframes heart-beat {
-            0% { transform: scale(0.9); }
-            14% { transform: scale(1.1); }
-            28% { transform: scale(0.9); }
-            42% { transform: scale(1.1); }
-            70% { transform: scale(0.9); }
-            100% { transform: scale(0.9); }
-        }
-        
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-light to-pink-50 min-h-screen font-sans text-dark flex flex-col">
-    <!-- 顶部导航栏 -->
-    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <i class="fa fa-heart text-primary text-2xl float"></i>
-                <h1 class="text-xl font-bold text-primary">给妖怪的跑步助手</h1>
-            </div>
-            <button id="infoBtn" class="p-2 rounded-full hover:bg-pink-100 transition-all-300 ios-haptic android-ripple">
-                <i class="fa fa-star text-accent"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- 主内容区 -->
-    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center">
-        <!-- 专属问候语 -->
-        <div class="mb-6 text-center">
-            <p id="greeting" class="text-secondary font-medium">亲爱的妖怪，今天也要元气满满地跑步哦！</p>
-        </div>
-        
-        <!-- 红心显示区域 - 跨平台适配大小 -->
-        <div class="relative mb-10 w-full max-w-md">
-            <div id="pulseRing" class="w-full aspect-square rounded-full border-8 border-primary/20 flex items-center justify-center pulse-ring mx-auto"></div>
-            <div id="heartContainer" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] rounded-full bg-white flex items-center justify-center shadow-lg">
-                <i id="heartIcon" class="fa fa-heart text-red-500 heart-beat"></i>
-            </div>
-            <!-- 装饰元素 -->
-            <div class="absolute -top-3 -left-3 w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white float">
-                <i class="fa fa-bolt"></i>
-            </div>
-            <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-white float" style="animation-delay: 1s">
-                <i class="fa fa-heart"></i>
-            </div>
-        </div>
-        
-        <!-- 步频控制区域 -->
-        <div class="mb-8 flex flex-col items-center">
-            <p class="text-gray-600 mb-3">当前步频: <span id="currentCadence" class="font-bold text-primary">180</span> 步/分钟</p>
-            <div class="flex items-center gap-4">
-                <button id="decreaseCadence" class="cadence-btn w-12 h-12 flex items-center justify-center ios-haptic android-ripple">
-                    <i class="fa fa-minus text-xl"></i>
-                </button>
-                <div class="w-24 h-2 bg-gray-200 rounded-full relative">
-                    <div id="cadenceSlider" class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-primary rounded-full shadow-md"></div>
-                </div>
-                <button id="increaseCadence" class="cadence-btn w-12 h-12 flex items-center justify-center ios-haptic android-ripple">
-                    <i class="fa fa-plus text-xl"></i>
-                </button>
-            </div>
-            <p class="text-xs text-gray-500 mt-2">调整红心跳动节奏 (120-200步/分钟)</p>
-        </div>
-        
-        <!-- 状态指示 -->
-        <div id="statusIndicator" class="mb-8 px-6 py-3 rounded-full bg-pink-100 text-primary text-center transition-all-300">
-            点击开始按钮，一起跑步吧~
-        </div>
-        
-        <!-- 控制按钮 - 跨平台适配样式 -->
-        <div class="flex flex-col sm:flex-row gap-4 mb-10 w-full max-w-xs">
-            <button id="startBtn" class="start-btn px-8 py-4 flex items-center justify-center gap-2 ios-haptic android-ripple">
-                <i class="fa fa-play text-lg"></i>
-                <span class="text-lg">开始跑步</span>
-            </button>
-            <button id="stopBtn" class="stop-btn stop-btn-inactive px-8 py-4 flex items-center justify-center gap-2 ios-haptic android-ripple">
-                <i class="fa fa-stop text-lg"></i>
-                <span class="text-lg">休息一下</span>
-            </button>
-        </div>
-        
-        <!-- 操作提示 - 跨平台适配 -->
-        <div id="controlHint" class="text-sm text-gray-500 mb-6 text-center">
-            <p>💡 点击按钮或使用快捷键控制开始/停止</p>
-        </div>
-        
-        <!-- 数据统计 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-2xl">
-            <div class="bg-white rounded-xl p-5 card-shadow transform hover:scale-105 transition-all-300">
-                <div class="text-gray-500 mb-1 flex items-center">
-                    <i class="fa fa-clock-o text-primary mr-1"></i> 持续时间
-                </div>
-                <div id="duration" class="text-2xl font-bold">00:00</div>
-            </div>
-            <div class="bg-white rounded-xl p-5 card-shadow transform hover:scale-105 transition-all-300">
-                <div class="text-gray-500 mb-1 flex items-center">
-                    <i class="fa fa-road text-primary mr-1"></i> 跑步距离
-                </div>
-                <div id="distance" class="text-2xl font-bold">0.00 公里</div>
-            </div>
-            <div class="bg-white rounded-xl p-5 card-shadow transform hover:scale-105 transition-all-300">
-                <div class="text-gray-500 mb-1 flex items-center">
-                    <i class="fa fa-tachometer text-primary mr-1"></i> 配速 (分/公里)
-                </div>
-                <div id="pace" class="text-2xl font-bold">00:00</div>
-            </div>
-        </div>
-        
-        <!-- 手动计步按钮 -->
-        <button id="stepBtn" class="mt-10 w-20 h-20 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-3xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all-300 ios-haptic android-ripple" disabled>
-            <i class="fa fa-plus"></i>
-        </button>
-        <p class="text-gray-500 mt-3 text-sm">点击计数一步</p>
-        
-        <!-- 添加到主屏幕提示按钮 -->
-        <button id="addHomeBtn" class="mt-8 px-6 py-2 bg-pink-100 hover:bg-pink-200 text-primary rounded-lg text-sm flex items-center gap-2 transition-all-300 hidden ios-haptic android-ripple">
-            <i class="fa fa-home"></i>
-            <span>添加到桌面，方便下次使用</span>
-        </button>
-    </main>
-
-    <!-- 信息模态框 -->
-    <div id="infoModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl transform transition-all">
-            <div class="flex justify-between items-start mb-4">
-                <h2 class="text-2xl font-bold text-primary">给我家妖怪的小提示</h2>
-                <button id="closeInfoBtn" class="text-gray-500 hover:text-gray-700 ios-haptic android-ripple">
-                    <i class="fa fa-times text-xl"></i>
-                </button>
-            </div>
-            <div id="modalContent" class="space-y-4 text-gray-700">
-                <p>跑步时跟着大红心的节拍跑就对啦，节奏可以自己调整哦~</p>
-                <p>使用步频加减按钮可以调整红心跳动的节奏，适合不同的跑步速度~</p>
-                <p>数据区域会显示你跑了多少公里，一步按0.7米计算哦~</p>
-                <p>可使用相应快捷方式控制开始/停止~</p>
-                <p class="pt-2 border-t border-pink-100"><i class="fa fa-heart text-primary mr-2"></i>
-                妖怪跑步的时候要注意安全，跑完步记得拉伸哦，爱你~</p>
-            </div>
-            <button id="gotItBtn" class="mt-6 w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all-300 ios-haptic android-ripple">
-                知道啦，谢谢~
-            </button>
-        </div>
-    </div>
-
-    <!-- 页脚 -->
-    <footer class="bg-white/80 backdrop-blur-md py-4 text-center text-gray-500 text-sm">
-        <div class="container mx-auto px-4">
-            <p>给我最爱的妖怪 &copy; 永远有效</p>
-        </div>
-    </footer>
-
-    <script>
-        // 全局变量
-        let isRunning = false;
-        let startTime = null;
-        let timer = null;
-        let totalSteps = 0;
-        let stepTimestamps = [];
-        let distance = 0; // 距离(公里)
-        let currentPace = 0; // 当前配速(秒/公里)
-        let lastStepTime = 0;
-        let wakeLock = null;
-        let backgroundAudioBuffer = null;
-        let backgroundAudioSource = null;
-        let isInstalledPWA = false;
-        let powerButtonPressCount = 0;
-        let powerButtonTimeout = null;
-        let screenStateChangeCount = 0;
-        let lastScreenState = 'visible';
-        let screenStateChangeTimeout = null;
-        let isAndroid = false;
-        let isApple = false;
-        
-        // 步长(米) - 可根据实际情况调整
-        const STEP_LENGTH = 0.7;
-        // 步频范围 (步/分钟)
-        const MIN_CADENCE = 120;
-        const MAX_CADENCE = 200;
-        // 默认步频 (步/分钟)
-        let TARGET_CADENCE = 180;
-        // 步频计算窗口 (秒)
-        const WINDOW_SECONDS = 10;
-        // 电源键双击检测时间间隔(毫秒)
-        const POWER_BUTTON_DELAY = 800;
-        
-        // DOM元素
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const stepBtn = document.getElementById('stepBtn');
-        const distanceEl = document.getElementById('distance');
-        const durationEl = document.getElementById('duration');
-        const paceEl = document.getElementById('pace');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const pulseRing = document.getElementById('pulseRing');
-        const heartContainer = document.getElementById('heartContainer');
-        const heartIcon = document.getElementById('heartIcon');
-        const infoBtn = document.getElementById('infoBtn');
-        const infoModal = document.getElementById('infoModal');
-        const closeInfoBtn = document.getElementById('closeInfoBtn');
-        const gotItBtn = document.getElementById('gotItBtn');
-        const addHomeBtn = document.getElementById('addHomeBtn');
-        const greeting = document.getElementById('greeting');
-        const controlHint = document.getElementById('controlHint');
-        const modalContent = document.getElementById('modalContent');
-        const currentCadenceEl = document.getElementById('currentCadence');
-        const increaseCadenceBtn = document.getElementById('increaseCadence');
-        const decreaseCadenceBtn = document.getElementById('decreaseCadence');
-        const cadenceSlider = document.getElementById('cadenceSlider');
-        
-        // 音频上下文和提示音
-        let audioContext = null;
-        
-        // 设备检测
-        function detectDevice() {
-            const userAgent = navigator.userAgent;
-            isAndroid = /Android/.test(userAgent) && !window.MSStream;
-            isApple = /iPhone|iPad|iPod|Macintosh/.test(userAgent) && !window.MSStream;
-            
-            // 根据设备类型应用不同样式和行为
-            applyDeviceSpecificSettings();
-        }
-        
-        // 应用设备特定设置
-        function applyDeviceSpecificSettings() {
-            // 调整红心大小
-            if (isAndroid) {
-                // 安卓设备使用稍大的比例
-                heartIcon.classList.add('text-[35vw]', 'max-w-[220px]');
-            } else if (isApple) {
-                // 苹果设备使用标准比例
-                heartIcon.classList.add('text-[30vw]', 'max-w-[200px]');
-            }
-            
-            // 调整操作提示
-            if (isAndroid) {
-                controlHint.innerHTML = '<p>💡 手机音量键或快速按电源键两次可控制开始/停止</p>';
-                modalContent.innerHTML = `
-                    <p>跑步时跟着大红心的节拍跑就对啦，节奏可以自己调整哦~</p>
-                    <p>使用步频加减按钮可以调整红心跳动的节奏，适合不同的跑步速度~</p>
-                    <p>数据区域会显示你跑了多少公里，一步按0.7米计算哦~</p>
-                    <p>安卓手机可快速按电源键两次或使用音量键控制开始/停止~</p>
-                    <p class="pt-2 border-t border-pink-100"><i class="fa fa-heart text-primary mr-2"></i>
-                    妖怪跑步的时候要注意安全，跑完步记得拉伸哦，爱你~</p>
-                `;
-            } else if (isApple) {
-                controlHint.innerHTML = '<p>💡 可使用耳机线控或点击屏幕按钮控制开始/停止</p>';
-                modalContent.innerHTML = `
-                    <p>跑步时跟着大红心的节拍跑就对啦，节奏可以自己调整哦~</p>
-                    <p>使用步频加减按钮可以调整红心跳动的节奏，适合不同的跑步速度~</p>
-                    <p>数据区域会显示你跑了多少公里，一步按0.7米计算哦~</p>
-                    <p>苹果设备可使用耳机线控或屏幕按钮控制开始/停止~</p>
-                    <p class="pt-2 border-t border-pink-100"><i class="fa fa-heart text-primary mr-2"></i>
-                    妖怪跑步的时候要注意安全，跑完步记得拉伸哦，爱你~</p>
-                `;
-            }
-            
-            // 调整触觉反馈和交互样式
-            if (isApple) {
-                // 苹果设备移除安卓特有的波纹效果
-                document.querySelectorAll('.android-ripple').forEach(el => {
-                    el.classList.remove('android-ripple');
-                });
-            } else {
-                // 非苹果设备移除ios触觉样式
-                document.querySelectorAll('.ios-haptic').forEach(el => {
-                    el.classList.remove('ios-haptic');
-                });
-            }
-            
-            // 初始化设备相关设置
-            initDeviceSettings();
-        }
-        
-        // 更新步频显示和滑块位置
-        function updateCadenceDisplay() {
-            currentCadenceEl.textContent = TARGET_CADENCE;
-            
-            // 计算滑块位置 (0-100%)
-            const percentage = ((TARGET_CADENCE - MIN_CADENCE) / (MAX_CADENCE - MIN_CADENCE)) * 100;
-            cadenceSlider.style.left = `${percentage}%`;
-            
-            // 如果正在跑步，实时更新节奏
-            if (isRunning) {
-                startCadenceGuide();
-            }
-        }
-        
-        // 增加步频
-        function increaseCadence() {
-            if (TARGET_CADENCE < MAX_CADENCE) {
-                TARGET_CADENCE += 5; // 每次增加5步/分钟
-                updateCadenceDisplay();
-                
-                // 提供反馈
-                if (window.navigator.vibrate) {
-                    window.navigator.vibrate(10);
-                }
-            }
-        }
-        
-        // 减少步频
-        function decreaseCadence() {
-            if (TARGET_CADENCE > MIN_CADENCE) {
-                TARGET_CADENCE -= 5; // 每次减少5步/分钟
-                updateCadenceDisplay();
-                
-                // 提供反馈
-                if (window.navigator.vibrate) {
-                    window.navigator.vibrate(10);
-                }
-            }
-        }
-        
-        // 滑块控制步频
-        function setupCadenceSlider() {
-            const sliderContainer = cadenceSlider.parentElement;
-            let isDragging = false;
-            
-            // 计算点击位置对应的步频
-            function getCadenceFromPosition(clientX) {
-                const rect = sliderContainer.getBoundingClientRect();
-                const percentage = Math.min(100, Math.max(0, (clientX - rect.left) / rect.width * 100));
-                // 将百分比转换为步频值，取5的倍数
-                const cadence = Math.round((MIN_CADENCE + (MAX_CADENCE - MIN_CADENCE) * (percentage / 100)) / 5) * 5;
-                return cadence;
-            }
-            
-            // 鼠标/触摸事件
-            sliderContainer.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                TARGET_CADENCE = getCadenceFromPosition(e.clientX);
-                updateCadenceDisplay();
-            });
-            
-            sliderContainer.addEventListener('touchstart', (e) => {
-                isDragging = true;
-                TARGET_CADENCE = getCadenceFromPosition(e.touches[0].clientX);
-                updateCadenceDisplay();
-                e.preventDefault();
-            });
-            
-            document.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    TARGET_CADENCE = getCadenceFromPosition(e.clientX);
-                    updateCadenceDisplay();
-                }
-            });
-            
-            document.addEventListener('touchmove', (e) => {
-                if (isDragging) {
-                    TARGET_CADENCE = getCadenceFromPosition(e.touches[0].clientX);
-                    updateCadenceDisplay();
-                    e.preventDefault();
-                }
-            });
-            
-            document.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-            
-            document.addEventListener('touchend', () => {
-                isDragging = false;
-            });
-        }
-        
-        // 检查是否是PWA模式（从主屏幕打开）
-        function checkPWAInstalled() {
-            return window.matchMedia('(display-mode: standalone)').matches || 
-                   window.navigator.standalone === true;
-        }
-        
-        // 初始化设备相关设置
-        function initDeviceSettings() {
-            if (isAndroid) {
-                // 安卓设备始终显示添加到桌面按钮
-                addHomeBtn.classList.remove('hidden');
-                addHomeBtn.innerHTML = '<i class="fa fa-home"></i><span>添加到桌面，方便下次使用</span>';
-                greeting.textContent = "亲爱的妖怪，准备好跑步了吗？";
-            } else if (isApple) {
-                isInstalledPWA = checkPWAInstalled();
-                if (!isInstalledPWA) {
-                    addHomeBtn.classList.remove('hidden');
-                } else {
-                    addHomeBtn.classList.add('hidden');
-                    greeting.textContent = "妖怪，从主屏幕打开啦，准备跑步吧~";
-                }
-                
-                window.matchMedia('(display-mode: standalone)').addEventListener('change', (evt) => {
-                    isInstalledPWA = evt.matches;
-                    if (isInstalledPWA) {
-                        addHomeBtn.classList.add('hidden');
-                        greeting.textContent = "妖怪，从主屏幕打开啦，准备跑步吧~";
-                    }
-                });
-            }
-        }
-        
-        // 添加到主屏幕提示
-        document.getElementById('addHomeBtn').addEventListener('click', () => {
-            if (isAndroid) {
-                alert('妖怪，点击浏览器菜单（通常是右上角三个点），选择"添加到主屏幕"或"安装"，这样下次就方便打开啦~');
-            } else if (isApple) {
-                alert('妖怪，点击Safari底部的分享按钮，选择"添加到主屏幕"，这样下次就好找啦~');
-            }
+        const source = state.audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(state.audioContext.destination);
+        source.start(0);
+    }
+    
+    // &#x64AD;&#x653E;&#x5F53;&#x524D;&#x8282;&#x62CD;
+    function playCurrentBeat() {
+        // &#x91CD;&#x7F6E;&#x6240;&#x6709;&#x8282;&#x62CD;&#x6837;&#x5F0F;
+        elements.beatElements.forEach(el =&#x3E; {
+            el.classList.remove(&#x27;beat-highlight&#x27;, &#x27;sound-a&#x27;, &#x27;sound-b&#x27;);
+            el.classList.add(&#x27;border-gray-200&#x27;);
         });
         
-        // 请求唤醒锁
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('唤醒锁已获取');
-                    
-                    wakeLock.addEventListener('release', () => {
-                        console.log('唤醒锁已释放，尝试重新获取');
-                        if (isRunning) {
-                            setTimeout(requestWakeLock, 1000);
-                        }
-                    });
-                }
-            } catch (err) {
-                console.warn('无法获取唤醒锁:', err);
-            }
+        // &#x83B7;&#x53D6;&#x5F53;&#x524D;&#x8282;&#x62CD;&#x7684;&#x97F3;&#x6548;
+        const currentSound = patterns[state.currentPattern][state.currentBeat];
+        const currentBeatEl = elements.beatElements[state.currentBeat];
+        
+        // &#x66F4;&#x65B0;&#x89C6;&#x89C9;&#x53CD;&#x9988;
+        currentBeatEl.classList.add(&#x27;beat-highlight&#x27;, &#x27;border-primary&#x27;);
+        if (currentSound === &#x27;A&#x27;) {
+            currentBeatEl.classList.add(&#x27;sound-a&#x27;);
+        } else if (currentSound === &#x27;B&#x27;) {
+            currentBeatEl.classList.add(&#x27;sound-b&#x27;);
         }
         
-        // 释放唤醒锁
-        function releaseWakeLock() {
-            if (wakeLock) {
-                wakeLock.release()
-                    .then(() => {
-                        wakeLock = null;
-                        console.log('唤醒锁已释放');
-                    })
-                    .catch(err => {
-                        console.error('释放唤醒锁失败:', err);
-                    });
-            }
-        }
-        
-        // 音频相关功能
-        async function createSilentAudioBuffer() {
-            const bufferSize = 44100 * 2;
-            const buffer = audioContext.createBuffer(1, bufferSize, 44100);
-            const data = buffer.getChannelData(0);
+        // &#x64AD;&#x653E;&#x97F3;&#x6548;&#xFF08;&#x5982;&#x679C;&#x4E0D;&#x662F;&#x4F11;&#x6B62;&#x7B26;&#xFF09;
+        if (currentSound !== &#x27;-&#x27;) {
+            playSound(currentSound.toLowerCase());
             
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = 0;
-            }
+            // &#x540C;&#x6B65;&#x7EA2;&#x5FC3;&#x52A8;&#x753B;
+            elements.beatIcon.classList.add(&#x27;beat-highlight&#x27;);
+            setTimeout(() =&#x3E; {
+                elements.beatIcon.classList.remove(&#x27;beat-highlight&#x27;);
+            }, 150);
             
-            return buffer;
-        }
-        
-        async function startBackgroundAudio() {
-            if (!audioContext || backgroundAudioSource) return;
+            // &#x8BA1;&#x7B97;&#x6B65;&#x957F;&#x548C;&#x8DDD;&#x79BB;
+            state.distance += state.stepLength / 1000; // &#x8F6C;&#x6362;&#x4E3A;&#x516C;&#x91CC;
+            updateStats();
             
-            try {
-                if (!backgroundAudioBuffer) {
-                    backgroundAudioBuffer = await createSilentAudioBuffer();
-                }
-                
-                backgroundAudioSource = audioContext.createBufferSource();
-                backgroundAudioSource.buffer = backgroundAudioBuffer;
-                backgroundAudioSource.loop = true;
-                backgroundAudioSource.connect(audioContext.destination);
-                backgroundAudioSource.start(0);
-                
-                console.log('背景音频已启动');
-            } catch (e) {
-                console.warn('启动背景音频失败:', e);
-            }
+            // &#x68C0;&#x67E5;&#x662F;&#x5426;&#x5B8C;&#x6210;&#x65B0;&#x7684;&#x4E00;&#x516C;&#x91CC;
+            checkKilometerAchievement();
         }
         
-        function stopBackgroundAudio() {
-            if (backgroundAudioSource) {
-                backgroundAudioSource.stop();
-                backgroundAudioSource.disconnect();
-                backgroundAudioSource = null;
-                console.log('背景音频已停止');
-            }
-        }
+        // &#x5207;&#x6362;&#x5230;&#x4E0B;&#x4E00;&#x62CD;&#xFF08;&#x5FAA;&#x73AF;&#xFF09;
+        state.currentBeat = (state.currentBeat + 1) % 4;
+    }
+    
+    // &#x663E;&#x793A;&#x4E2A;&#x6027;&#x5316;&#x95EE;&#x5019;&#x8BED;
+    function showGreeting(message, duration = 3000) {
+        const originalText = elements.greeting.textContent;
+        elements.greeting.textContent = message;
+        elements.greeting.classList.add(&#x27;text-accent&#x27;);
         
-        function initAudio() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                console.log('音频上下文初始化成功');
-                return true;
-            } catch (e) {
-                console.warn('音频初始化失败:', e);
-                alert('妖怪，需要允许音频权限才能听到提示音哦~');
-                return false;
-            }
-        }
-        
-        function playBeep() {
-            if (!audioContext) return;
+        setTimeout(() =&#x3E; {
+            elements.greeting.textContent = originalText;
+            elements.greeting.classList.remove(&#x27;text-accent&#x27;);
+        }, duration);
+    }
+    
+    // &#x68C0;&#x67E5;&#x662F;&#x5426;&#x5B8C;&#x6210;&#x65B0;&#x7684;&#x4E00;&#x516C;&#x91CC;
+    function checkKilometerAchievement() {
+        const currentKm = Math.floor(state.distance);
+        if (currentKm &#x3E; state.lastKilometer &#x26;&#x26; currentKm &#x3E; 0) {
+            // &#x8BA1;&#x7B97;&#x8FD9;&#x4E00;&#x516C;&#x91CC;&#x7684;&#x7528;&#x65F6;
+            const kmTime = state.totalSeconds - (state.lastKilometer * 60000 / state.cadence * (1000 / (state.stepLength * 100)));
             
-            try {
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                
-                const oscillator1 = audioContext.createOscillator();
-                const oscillator2 = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator1.type = 'sine';
-                oscillator1.frequency.setValueAtTime(988, audioContext.currentTime);
-                
-                oscillator2.type = 'sine';
-                oscillator2.frequency.setValueAtTime(1319, audioContext.currentTime);
-                
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
-                gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.2);
-                
-                oscillator1.connect(gainNode);
-                oscillator2.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator1.start();
-                oscillator2.start();
-                oscillator1.stop(audioContext.currentTime + 0.2);
-                oscillator2.stop(audioContext.currentTime + 0.2);
-                
-                // 根据设备类型调整振动反馈
-                if (window.navigator.vibrate) {
-                    if (isAndroid) {
-                        window.navigator.vibrate(30);
-                    } else if (isApple) {
-                        // 苹果设备使用更短的振动
-                        window.navigator.vibrate(20);
-                    }
-                }
-            } catch (e) {
-                console.warn('播放提示音失败:', e);
-            }
+            // &#x8BA1;&#x7B97;&#x8FD9;&#x4E00;&#x516C;&#x91CC;&#x7684;&#x914D;&#x901F;(&#x79D2;/&#x516C;&#x91CC;)
+            const kmPace = kmTime / (currentKm - state.lastKilometer);
+            
+            // &#x66F4;&#x65B0;&#x5F53;&#x524D;&#x516C;&#x91CC;&#x6570;
+            state.lastKilometer = currentKm;
+            elements.currentKilometerEl.textContent = currentKm;
+            
+            // &#x64AD;&#x653E;&#x516C;&#x91CC;&#x63D0;&#x9192;
+            playKilometerAlert(currentKm, kmTime, kmPace);
+            
+            // &#x663E;&#x793A;&#x9F13;&#x52B1;&#x4FE1;&#x606F;
+            const encouragements = [
+                &#x60;&#x592A;&#x68D2;&#x4E86;&#xFF01;&#x5DF2;&#x7ECF;&#x8DD1;&#x4E86;${currentKm}&#x516C;&#x91CC;&#x5566;~&#x60;,
+                &#x60;&#x5996;&#x602A;&#x597D;&#x5389;&#x5BB3;&#xFF0C;&#x90FD;&#x8DD1;&#x5230;${currentKm}&#x516C;&#x91CC;&#x4E86;&#xFF01;&#x60;,
+                &#x60;&#x52A0;&#x6CB9;&#x54E6;&#xFF0C;&#x5DF2;&#x7ECF;${currentKm}&#x516C;&#x91CC;&#x4E86;&#xFF0C;&#x7EE7;&#x7EED;&#x4FDD;&#x6301;~&#x60;
+            ];
+            const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+            showGreeting(randomEncouragement, 4000);
+        }
+    }
+    
+    // &#x64AD;&#x653E;&#x516C;&#x91CC;&#x63D0;&#x9192;&#x8BED;&#x97F3;
+    function playKilometerAlert(km, time, pace) {
+        if (!state.isAudioReady) return;
+        
+        // &#x6784;&#x5EFA;&#x8BED;&#x97F3;&#x6587;&#x672C;
+        const timeStr = &#x60;${Math.floor(time / 60)}&#x5206;${Math.floor(time % 60)}&#x79D2;&#x60;;
+        const paceStr = &#x60;${Math.floor(pace / 60)}&#x5206;${Math.floor(pace % 60)}&#x79D2;&#x60;;
+        const text = &#x60;&#x4F60;&#x5DF2;&#x8DD1;&#x6B65;${km}&#x516C;&#x91CC;&#xFF0C;&#x7528;&#x65F6;${timeStr}&#xFF0C;&#x5E73;&#x5747;&#x914D;&#x901F;${paceStr}&#x6BCF;&#x516C;&#x91CC;&#x60;;
+        
+        // &#x4F7F;&#x7528;Web Speech API
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = &#x27;zh-CN&#x27;;
+        utterance.volume = 1;
+        utterance.rate = 0.9; // &#x7A0D;&#x6162;&#x4E00;&#x70B9;&#x66F4;&#x6E05;&#x6670;
+        utterance.pitch = 1.1; // &#x7A0D;&#x5FAE;&#x9AD8;&#x4E00;&#x70B9;&#x66F4;&#x4EB2;&#x5207;
+        
+        // &#x6682;&#x505C;&#x8282;&#x62CD;&#x97F3;&#x6548;
+        const wasRunning = state.isRunning;
+        if (wasRunning) {
+            clearInterval(state.beatInterval);
         }
         
-        // 处理电源键/屏幕状态变化
-        function handleScreenStateChange() {
-            // 检测屏幕状态变化
-            const newState = document.visibilityState;
-            
-            // 屏幕状态变化时计数
-            if (newState !== lastScreenState) {
-                screenStateChangeCount++;
-                lastScreenState = newState;
-                
-                // 清除之前的超时
-                if (screenStateChangeTimeout) {
-                    clearTimeout(screenStateChangeTimeout);
-                }
-                
-                // 对于安卓设备，优化检测逻辑
-                if (isAndroid) {
-                    // 任何屏幕状态变化都视为可能的电源键操作
-                    detectPowerButtonPress();
-                } else if (isApple) {
-                    // 苹果设备使用不同的检测逻辑
-                    screenStateChangeTimeout = setTimeout(() => {
-                        // 两次状态变化视为一次电源键双击
-                        if (screenStateChangeCount >= 2) {
-                            toggleRunningState();
-                        }
-                        screenStateChangeCount = 0;
-                    }, POWER_BUTTON_DELAY);
-                }
+        // &#x64AD;&#x653E;&#x8BED;&#x97F3;
+        window.speechSynthesis.speak(utterance);
+        
+        // &#x8BED;&#x97F3;&#x64AD;&#x653E;&#x5B8C;&#x6210;&#x540E;&#x6062;&#x590D;&#x8282;&#x62CD;
+        utterance.onend = () =&#x3E; {
+            if (wasRunning &#x26;&#x26; state.isRunning &#x26;&#x26; !state.isPaused) {
+                startBeatInterval();
             }
+        };
+    }
+    
+    // &#x66F4;&#x65B0;&#x7EDF;&#x8BA1;&#x6570;&#x636E;
+    function updateStats() {
+        if (!state.isRunning) return;
+        
+        // &#x8BA1;&#x7B97;&#x603B;&#x65F6;&#x95F4;(&#x6263;&#x9664;&#x6682;&#x505C;&#x65F6;&#x95F4;)
+        const now = new Date();
+        const runningTime = state.pauseTime ? 
+            (state.pauseTime - state.startTime) + (now - state.pauseTime) - state.totalPausedTime :
+            now - state.startTime - state.totalPausedTime;
+            
+        state.totalSeconds = Math.floor(runningTime / 1000);
+        
+        // &#x8BA1;&#x7B97;&#x5E76;&#x66F4;&#x65B0;&#x65F6;&#x95F4;&#x663E;&#x793A;
+        const minutes = Math.floor(state.totalSeconds / 60);
+        const seconds = state.totalSeconds % 60;
+        elements.durationEl.textContent = &#x60;${minutes.toString().padStart(2, &#x27;0&#x27;)}:${seconds.toString().padStart(2, &#x27;0&#x27;)}&#x60;;
+        
+        // &#x66F4;&#x65B0;&#x8DDD;&#x79BB;&#x663E;&#x793A;
+        elements.distanceEl.textContent = &#x60;${state.distance.toFixed(2)} &#x516C;&#x91CC;&#x60;;
+        
+        // &#x8BA1;&#x7B97;&#x5E76;&#x66F4;&#x65B0;&#x914D;&#x901F;(&#x5206;&#x949F;/&#x516C;&#x91CC;)
+        if (state.distance &#x3E; 0) {
+            const paceSeconds = state.totalSeconds / state.distance;
+            const paceMinutes = Math.floor(paceSeconds / 60);
+            const paceSecs = Math.floor(paceSeconds % 60);
+            elements.paceEl.textContent = &#x60;${paceMinutes.toString().padStart(2, &#x27;0&#x27;)}:${paceSecs.toString().padStart(2, &#x27;0&#x27;)}&#x60;;
+        }
+    }
+    
+    // &#x5F00;&#x59CB;&#x8282;&#x62CD;&#x95F4;&#x9694;
+    function startBeatInterval() {
+        // &#x6E05;&#x9664;&#x73B0;&#x6709;&#x95F4;&#x9694;
+        if (state.beatInterval) {
+            clearInterval(state.beatInterval);
         }
         
-        // 安卓设备专用电源键检测
-        function detectPowerButtonPress() {
-            // 增加按键计数
-            powerButtonPressCount++;
-            
-            // 清除之前的超时
-            if (powerButtonTimeout) {
-                clearTimeout(powerButtonTimeout);
-            }
-            
-            // 设置超时来检测双击
-            powerButtonTimeout = setTimeout(() => {
-                // 双击电源键才触发状态切换
-                if (powerButtonPressCount >= 2) {
-                    toggleRunningState();
-                    
-                    // 触发反馈，确认操作生效
-                    if (window.navigator.vibrate) {
-                        window.navigator.vibrate(50);
-                    }
-                }
-                powerButtonPressCount = 0;
-            }, POWER_BUTTON_DELAY);
-        }
+        // &#x6839;&#x636E;&#x6B65;&#x9891;&#x8BA1;&#x7B97;&#x95F4;&#x9694;&#x65F6;&#x95F4;(&#x6BEB;&#x79D2;)
+        const beatIntervalMs = 60000 / state.cadence;
         
-        // 切换跑步状态
-        function toggleRunningState() {
-            if (isRunning) {
-                stopTracking();
-            } else {
-                startTracking();
-            }
-        }
-        
-        // 跑步控制功能
-        function startTracking() {
-            if (isRunning) return;
-            
-            if (!audioContext && !initAudio()) {
+        // &#x8BBE;&#x7F6E;&#x65B0;&#x7684;&#x8282;&#x62CD;&#x95F4;&#x9694;
+        state.beatInterval = setInterval(playCurrentBeat, beatIntervalMs);
+    }
+    
+    // &#x5F00;&#x59CB;&#x8DD1;&#x6B65;
+    async function startRunning() {
+        // &#x521D;&#x59CB;&#x5316;&#x97F3;&#x9891;
+        if (!state.isAudioReady) {
+            await initAudio();
+            if (!state.isAudioReady) {
                 return;
             }
+        }
+        
+        if (state.isPaused) {
+            // &#x4ECE;&#x6682;&#x505C;&#x72B6;&#x6001;&#x6062;&#x590D;
+            state.isPaused = false;
+            state.pauseTime = new Date();
+            showGreeting(&#x22;&#x7EE7;&#x7EED;&#x8DD1;&#x6B65;&#x5566;&#xFF0C;&#x52A0;&#x6CB9;&#x54E6;~&#x22;);
             
-            if (audioContext.state === 'suspended') {
-                audioContext.resume().then(() => {
-                    console.log('音频上下文已恢复');
-                });
-            }
-            
-            startBackgroundAudio();
-            
-            // 请求唤醒锁
+            // &#x6062;&#x590D;&#x5524;&#x9192;&#x9501;
             requestWakeLock();
             
-            isRunning = true;
-            startTime = new Date();
-            totalSteps = 0;
-            distance = 0;
-            currentPace = 0;
-            stepTimestamps = [];
-            lastStepTime = 0;
+            // &#x6062;&#x590D;&#x8282;&#x62CD;
+            startBeatInterval();
+        } else {
+            // &#x5168;&#x65B0;&#x5F00;&#x59CB;
+            state.isRunning = true;
+            state.startTime = new Date();
+            state.pauseTime = new Date();
+            showGreeting(&#x22;&#x5F00;&#x59CB;&#x8DD1;&#x6B65;&#x54AF;&#xFF0C;&#x8DDF;&#x7740;&#x8282;&#x594F;&#x8DD1;&#x8D77;&#x6765;~&#x22;);
             
-            // 强制初始化显示为0
-            durationEl.textContent = "00:00";
-            distanceEl.textContent = "0.00 公里";
-            paceEl.textContent = "00:00";
+            // &#x83B7;&#x53D6;&#x5524;&#x9192;&#x9501;
+            requestWakeLock();
             
-            // 更新按钮状态
-            startBtn.classList.add('start-btn-inactive');
-            stopBtn.classList.remove('stop-btn-inactive');
+            // &#x542F;&#x52A8;&#x5B9A;&#x65F6;&#x5668;&#x66F4;&#x65B0;&#x7EDF;&#x8BA1;
+            state.timerInterval = setInterval(updateStats, 1000);
             
-            stepBtn.disabled = false;
-            stepBtn.classList.remove('bg-primary/10', 'hover:bg-primary/20');
-            stepBtn.classList.add('bg-accent/20', 'hover:bg-accent/30', 'text-accent');
-            
-            statusIndicator.textContent = `妖怪加油！当前步频: ${TARGET_CADENCE}步/分钟`;
-            statusIndicator.classList.remove('bg-pink-100', 'text-primary');
-            statusIndicator.classList.add('bg-secondary/10', 'text-secondary');
-            
-            // 修复：确保定时器正确启动
-            if (timer) clearInterval(timer);
-            timer = setInterval(updateStats, 1000);
-            startCadenceGuide();
-            
-            setTimeout(() => {
-                statusIndicator.textContent = `保持节奏，妖怪跑得真棒！`;
-            }, 3000);
+            // &#x5F00;&#x59CB;&#x8282;&#x62CD;
+            startBeatInterval();
         }
         
-        function stopTracking() {
-            if (!isRunning) return;
-            
-            isRunning = false;
-            clearInterval(timer);
-            clearInterval(guideInterval);
-            
-            releaseWakeLock();
-            stopBackgroundAudio();
-            
-            // 更新按钮状态
-            startBtn.classList.remove('start-btn-inactive');
-            stopBtn.classList.add('stop-btn-inactive');
-            
-            stepBtn.disabled = true;
-            stepBtn.classList.remove('bg-accent/20', 'hover:bg-accent/30', 'text-accent');
-            stepBtn.classList.add('bg-primary/10', 'hover:bg-primary/20', 'text-primary');
-            
-            statusIndicator.textContent = '妖怪辛苦啦，休息一下吧~';
-            statusIndicator.classList.remove('bg-secondary/10', 'text-secondary');
-            statusIndicator.classList.add('bg-pink-100', 'text-primary');
-            
-            pulseRing.style.animation = 'none';
-            setTimeout(() => {
-                pulseRing.style.animation = '';
-            }, 10);
-        }
+        // &#x66F4;&#x65B0;&#x6309;&#x94AE;&#x72B6;&#x6001;
+        elements.startBtn.disabled = true;
+        elements.startBtn.classList.add(&#x27;bg-gray-200&#x27;, &#x27;text-gray-600&#x27;);
+        elements.startBtn.classList.remove(&#x27;bg-primary&#x27;, &#x27;hover:bg-primary/90&#x27;, &#x27;text-white&#x27;);
+        elements.pauseBtn.disabled = false;
+        elements.pauseBtn.classList.remove(&#x27;bg-gray-200&#x27;, &#x27;text-gray-600&#x27;);
+        elements.pauseBtn.classList.add(&#x27;bg-secondary&#x27;, &#x27;hover:bg-secondary/90&#x27;, &#x27;text-white&#x27;);
+        elements.resetBtn.disabled = false;
+        elements.resetBtn.classList.remove(&#x27;bg-gray-200&#x27;, &#x27;text-gray-600&#x27;);
+        elements.resetBtn.classList.add(&#x27;bg-gray-500&#x27;, &#x27;hover:bg-gray-600&#x27;, &#x27;text-white&#x27;);
+    }
+    
+    // &#x6682;&#x505C;&#x8DD1;&#x6B65;
+    function pauseRunning() {
+        if (!state.isRunning) return;
         
-        function recordStep() {
-            if (!isRunning) return;
-            
-            const now = new Date();
-            const timestamp = now.getTime();
-            
-            totalSteps++;
-            stepTimestamps.push(timestamp);
-            
-            // 计算距离 (公里) = 步数 × 步长(米) ÷ 1000
-            distance = (totalSteps * STEP_LENGTH) / 1000;
-            updateUI();
-            
-            if (window.navigator.vibrate) {
-                window.navigator.vibrate(20);
-            }
-        }
+        state.isPaused = true;
+        state.totalPausedTime += new Date() - state.pauseTime;
+        showGreeting(&#x22;&#x4F11;&#x606F;&#x4E00;&#x4E0B;&#x4E0B;&#xFF0C;&#x7B49;&#x4E0B;&#x7EE7;&#x7EED;&#x54E6;~&#x22;);
         
-        function updateStats() {
-            if (!isRunning || !startTime) return;
-            
-            const now = new Date();
-            const durationMs = now - startTime;
-            const minutes = Math.floor(durationMs / 60000);
-            const seconds = Math.floor((durationMs % 60000) / 1000);
-            durationEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            // 修复：即使没有手动计步，也根据步频估算距离
-            if (totalSteps === 0) {
-                // 根据步频估算步数（每分钟步数 × 分钟数）
-                const minutesRunning = durationMs / 60000;
-                const estimatedSteps = Math.floor(TARGET_CADENCE * minutesRunning);
-                distance = (estimatedSteps * STEP_LENGTH) / 1000;
-            }
-            
-            // 计算配速 (分/公里)
-            if (distance > 0) {
-                const totalSeconds = durationMs / 1000;
-                const paceMinutes = Math.floor(totalSeconds / distance / 60);
-                const paceSeconds = Math.floor((totalSeconds / distance) % 60);
-                paceEl.textContent = `${paceMinutes.toString().padStart(2, '0')}:${paceSeconds.toString().padStart(2, '0')}`;
+        // &#x6682;&#x505C;&#x8282;&#x62CD;
+        clearInterval(state.beatInterval);
+        
+        // &#x91CA;&#x653E;&#x5524;&#x9192;&#x9501;
+        releaseWakeLock();
+        
+        // &#x66F4;&#x65B0;&#x6309;&#x94AE;&#x72B6;&#x6001;
+        elements.startBtn.disabled = false;
+        elements.startBtn.classList.remove(&#x27;bg-gray-200&#x27;, &#x27;text-gray-600&#x27;);
+        elements.startBtn.classList.add(&#x27;bg-primary&#x27;, &#x27;hover:bg-primary/90&#x27;, &#x27;text-white&#x27;);
+        elements.pauseBtn.disabled = true;
+        elements.pauseBtn.classList.add(&#x27;bg-gray-200&#x27;, &#x27;text-gray-600&#x27;);
+        elements.pauseBtn.classList.remove(&#x27;bg-secondary&#x27;, &#x27;hover:bg-secondary/90&#x27;, &#x27;text-white&#x27;);
+    }
+    
+    // &#x91CD;&#x7F6E;&#x8DD1;&#x6B65;
+    function resetRunning() {
+        // &#x505C;&#x6B62;&#x6240;&#x6709;&#x5B9A;&#x65F6;&#x5668;
+        clearInterval(state.beatInterval);
+        clearInterval(state.timerInterval);
+        
+        // &#x91CA;&#x653E;&#x5524;&#x9192;&#x9501;
+        releaseWakeLock();
+        
+        // &#x91CD;&#x7F6E;&#x72B6;&#x6001;
+        state.isRunning = false;
+        state.isPaused = false;
+        state.startTime = null;
+        state.pauseTime = null;
+        state.totalPausedTime = 0;
+        state.distance = 0;
+        state.totalSeconds = 0;
+        state.currentKilometer = 0;
+        state.lastKilometer = 0;
+        state.currentBeat = 0;
+        
+        // &#x91CD;&#x7F6E;UI
+        elements.durationEl.textContent = &#x27;00:00&#x27;;
+        elements.distanceEl.textContent = &#x27;0.00 &#x516C;&#x91CC;&#x27;;
+        elements.paceEl.textContent = &#x27;00:00&#x27;;
+        elements.currentKilometerEl.textContent = &#x27;0&#x27;;
+        
+        // &#x91CD;&#x7F6E;&#x8282;&#x62CD;&#x663E;&#x793A;
+        elements.beatElements.forEach(el =&#x3E; {
+            el.classList.remove(&#x27;beat-highlight&#x27;, &#x27;sound-a&#x27;, &#x27;sound-b&#x27;, &#x27;border-primary&#x27;);
+            el.classList.add(&#x27;border-gray-200&#x27;);
+        });
+        
+        showGreeting(&#x22;&#x5DF2;&#x7ECF;&#x91CD;&#x7F6E;&#x597D;&#x5566;&#xFF0C;&#x968F;&#x65F6;&#x53EF;&#x4EE5;&#x91CD;&#x65B0;&#x5F00;&#x59CB;~&#x22;);
+        
+        // &#x66F4;&#x65B0;&#x6309;&#x94AE;&#x72B6;&#x6001;
+        elements.startBtn.disabled = false;
+        elements.startBtn.classList.remove(&#x27;bg-gray-200&#x27;, &#x27;text-gray-600&#x27;);
+        elements.startBtn.classList.add(&#x27;bg-primary&#x27;, &#x27;hover:bg-primary/90&#x27;, &#x27;text-white&#x27;);
+        elements.pauseBtn.disabled = true;
+        elements.pauseBtn.classList.add(&#x27;bg-gray-200&#x27;, &#x27;text-gray-600&#x27;);
+        elements.pauseBtn.classList.remove(&#x27;bg-secondary&#x27;, &#x27;hover:bg-secondary/90&#x27;, &#x27;text-white&#x27;);
+        elements.resetBtn.disabled = true;
+        elements.resetBtn.classList.add(&#x27;bg-gray-200&#x27;, &#x27;text-gray-600&#x27;);
+        elements.resetBtn.classList.remove(&#x27;bg-gray-500&#x27;, &#x27;hover:bg-gray-600&#x27;, &#x27;text-white&#x27;);
+    }
+    
+    // &#x5207;&#x6362;&#x8282;&#x594F;&#x65B9;&#x6848;
+    function setPattern(patternId) {
+        state.currentPattern = patternId;
+        state.currentBeat = 0;
+        
+        // &#x66F4;&#x65B0;&#x6309;&#x94AE;&#x6837;&#x5F0F;
+        elements.patternBtns.forEach(btn =&#x3E; {
+            if (parseInt(btn.dataset.pattern) === patternId) {
+                btn.classList.add(&#x27;border-primary&#x27;, &#x27;bg-primary/5&#x27;);
             } else {
-                paceEl.textContent = "00:00";
-            }
-            
-            updateUI();
-        }
-        
-        function updateUI() {
-            // 修复：确保距离显示正确更新
-            distanceEl.textContent = `${distance.toFixed(2)} 公里`;
-        }
-        
-        // 步频引导
-        let guideInterval;
-        function startCadenceGuide() {
-            // 根据当前步频计算间隔时间(毫秒)
-            const intervalMs = 60000 / TARGET_CADENCE;
-            
-            if (guideInterval) {
-                clearInterval(guideInterval);
-            }
-            
-            let guideStep = () => {
-                if (isRunning) {
-                    playBeep();
-                    
-                    // 增强脉冲效果
-                    pulseRing.style.transform = 'scale(1.08)';
-                    heartIcon.style.transform = 'scale(1.2)';
-                    
-                    setTimeout(() => {
-                        if (isRunning) {
-                            pulseRing.style.transform = '';
-                            heartIcon.style.transform = '';
-                        }
-                    }, 100);
-                    
-                    // 自动计步 - 按照设定的步频自动增加步数
-                    recordStep();
-                    
-                    guideInterval = setTimeout(guideStep, intervalMs);
-                }
-            };
-            
-            guideStep();
-        }
-        
-        // 音量键控制 - 主要针对安卓设备
-        function setupVolumeKeyControl() {
-            if (!isAndroid) return; // 仅在安卓设备上启用
-            
-            let lastVolume = 0.5;
-            
-            // 创建一个不可见的音频元素来检测音量变化
-            const audio = new Audio();
-            audio.src = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMQAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAeAAAmVgYAAAE4AAABAAgAZGF0YQAAAAA=';
-            audio.load();
-            audio.volume = lastVolume;
-            
-            // 安卓设备提高检测频率
-            const checkInterval = 150;
-            
-            setInterval(() => {
-                if (Math.abs(audio.volume - lastVolume) > 0.01) {
-                    // 音量发生变化，视为按下了音量键
-                    toggleRunningState();
-                    
-                    // 恢复音量，避免持续触发
-                    lastVolume = audio.volume;
-                }
-            }, checkInterval);
-        }
-        
-        // 耳机线控检测 - 主要针对苹果设备
-        function setupHeadphoneControl() {
-            if (!isApple) return; // 仅在苹果设备上启用
-            
-            document.addEventListener('keydown', (e) => {
-                // 检测耳机线控按键
-                if (e.code === 'MediaPlayPause') {
-                    e.preventDefault();
-                    toggleRunningState();
-                } else if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') {
-                    e.preventDefault();
-                    if (isRunning) {
-                        recordStep();
-                    }
-                }
-            });
-        }
-        
-        // 事件监听器
-        startBtn.addEventListener('click', startTracking);
-        stopBtn.addEventListener('click', stopTracking);
-        stepBtn.addEventListener('click', recordStep);
-        
-        // 步频控制按钮事件
-        increaseCadenceBtn.addEventListener('click', increaseCadence);
-        decreaseCadenceBtn.addEventListener('click', decreaseCadence);
-        
-        // 监听屏幕状态变化（用于检测电源键）
-        document.addEventListener('visibilitychange', handleScreenStateChange);
-        
-        // 信息模态框
-        infoBtn.addEventListener('click', () => {
-            infoModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        });
-        
-        function closeModal() {
-            infoModal.classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-        
-        closeInfoBtn.addEventListener('click', closeModal);
-        gotItBtn.addEventListener('click', closeModal);
-        
-        infoModal.addEventListener('click', (e) => {
-            if (e.target === infoModal) {
-                closeModal();
+                btn.classList.remove(&#x27;border-primary&#x27;, &#x27;bg-primary/5&#x27;);
             }
         });
         
-        // 键盘快捷键
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                if (isRunning) {
-                    recordStep();
-                }
-            } else if (e.code === 'KeyS') {
-                e.preventDefault();
-                toggleRunningState();
-            } else if (e.code === 'ArrowUp') {
-                e.preventDefault();
-                increaseCadence();
-            } else if (e.code === 'ArrowDown') {
-                e.preventDefault();
-                decreaseCadence();
-            }
+        // &#x91CD;&#x7F6E;&#x5F53;&#x524D;&#x8282;&#x62CD;&#x663E;&#x793A;
+        elements.beatElements.forEach(el =&#x3E; {
+            el.classList.remove(&#x27;beat-highlight&#x27;, &#x27;sound-a&#x27;, &#x27;sound-b&#x27;, &#x27;border-primary&#x27;);
+            el.classList.add(&#x27;border-gray-200&#x27;);
         });
         
-        // 初始化
-        window.addEventListener('DOMContentLoaded', () => {
-            // 首先检测设备类型
-            detectDevice();
-            
-            // 初始化步频显示
-            updateCadenceDisplay();
-            
-            // 设置步频滑块
-            setupCadenceSlider();
-            
-            // 根据设备类型设置不同的控制方式
-            setupVolumeKeyControl();
-            setupHeadphoneControl();
-            
-            // 主动请求音频上下文初始化
-            const setupAudioOnInteraction = () => {
-                if (!audioContext) {
-                    initAudio();
-                }
-                document.removeEventListener('click', setupAudioOnInteraction);
-                document.removeEventListener('touchend', setupAudioOnInteraction);
-            };
-            
-            document.addEventListener('click', setupAudioOnInteraction);
-            document.addEventListener('touchend', setupAudioOnInteraction);
-            
-            // 安卓设备额外的唤醒锁请求逻辑
-            if (isAndroid) {
-                document.addEventListener('click', () => {
-                    if (isRunning) {
-                        requestWakeLock();
+        // &#x663E;&#x793A;&#x63D0;&#x793A;
+        const patternNames = [
+            &#x22;&#x22;, // &#x7D22;&#x5F15;0&#x4E0D;&#x7528;
+            &#x22;&#x7ECF;&#x5178;&#x5DE6;&#x53F3;&#x4EA4;&#x66FF;&#x22;,
+            &#x22;&#x53CC;&#x500D;&#x6B65;&#x9891;&#x22;,
+            &#x22;&#x91CD;&#x70B9;&#x6B65;&#x22;,
+            &#x22;&#x5207;&#x5206;&#x8282;&#x594F;&#x22;,
+            &#x22;&#x534E;&#x5C14;&#x5179;&#x97F5;&#x5F8B;&#x22;,
+            &#x22;&#x524D;&#x5BFC;&#x6B65;&#x22;
+        ];
+        showGreeting(&#x60;&#x5DF2;&#x9009;&#x62E9;${patternNames[patternId]}&#x8282;&#x594F;~&#x60;);
+    }
+    
+    // &#x8C03;&#x6574;BPM
+    function setBpm(value) {
+        state.cadence = parseInt(value);
+        elements.bpmDisplay.textContent = state.cadence;
+        elements.currentBpm.textContent = state.cadence;
+        
+        // &#x5982;&#x679C;&#x6B63;&#x5728;&#x8FD0;&#x884C;&#xFF0C;&#x91CD;&#x65B0;&#x542F;&#x52A8;&#x4EE5;&#x5E94;&#x7528;&#x65B0;&#x901F;&#x5EA6;
+        if (state.isRunning &#x26;&#x26; !state.isPaused) {
+            clearInterval(state.beatInterval);
+            startBeatInterval();
+        }
+    }
+    
+    // &#x521D;&#x59CB;&#x5316;&#x5524;&#x9192;&#x9501;
+    async function requestWakeLock() {
+        if (!state.isRunning || state.wakeLock) return;
+        
+        try {
+            if (&#x27;wakeLock&#x27; in navigator) {
+                state.wakeLock = await navigator.wakeLock.request(&#x27;screen&#x27;);
+                
+                state.wakeLock.addEventListener(&#x27;release&#x27;, () =&#x3E; {
+                    if (state.isRunning &#x26;&#x26; !state.isPaused) {
+                        setTimeout(requestWakeLock, 1000);
                     }
                 });
             }
-        });
-    </script>
-</body>
-</html>
+        } catch (err) {
+            console.warn(&#x27;&#x65E0;&#x6CD5;&#x83B7;&#x53D6;&#x5524;&#x9192;&#x9501;:&#x27;, err);
+        }
+    }
     
+    // &#x91CA;&#x653E;&#x5524;&#x9192;&#x9501;
+    function releaseWakeLock() {
+        if (state.wakeLock) {
+            state.wakeLock.release()
+                .then(() =&#x3E; {
+                    state.wakeLock = null;
+                })
+                .catch(err =&#x3E; {
+                    console.error(&#x27;&#x91CA;&#x653E;&#x5524;&#x9192;&#x9501;&#x5931;&#x8D25;:&#x27;, err);
+                });
+        }
+    }
+    
+    // &#x4E8B;&#x4EF6;&#x76D1;&#x542C;
+    elements.startBtn.addEventListener(&#x27;click&#x27;, startRunning);
+    elements.pauseBtn.addEventListener(&#x27;click&#x27;, pauseRunning);
+    elements.resetBtn.addEventListener(&#x27;click&#x27;, resetRunning);
+    
+    // BPM&#x8C03;&#x8282;
+    elements.bpmSlider.addEventListener(&#x27;input&#x27;, (e) =&#x3E; {
+        setBpm(e.target.value);
+    });
+    
+    // &#x8282;&#x594F;&#x65B9;&#x6848;&#x9009;&#x62E9;
+    elements.patternBtns.forEach(btn =&#x3E; {
+        btn.addEventListener(&#x27;click&#x27;, () =&#x3E; {
+            setPattern(parseInt(btn.dataset.pattern));
+        });
+    });
+    
+    // &#x4FE1;&#x606F;&#x6A21;&#x6001;&#x6846;
+    elements.infoBtn.addEventListener(&#x27;click&#x27;, () =&#x3E; {
+        elements.infoModal.classList.remove(&#x27;hidden&#x27;);
+        document.body.style.overflow = &#x27;hidden&#x27;;
+    });
+    
+    function closeModal() {
+        elements.infoModal.classList.add(&#x27;hidden&#x27;);
+        document.body.style.overflow = &#x27;&#x27;;
+    }
+    
+    elements.closeInfoBtn.addEventListener(&#x27;click&#x27;, closeModal);
+    elements.gotItBtn.addEventListener(&#x27;click&#x27;, closeModal);
+    
+    elements.infoModal.addEventListener(&#x27;click&#x27;, (e) =&#x3E; {
+        if (e.target === elements.infoModal) {
+            closeModal();
+        }
+    });
+    
+    // &#x521D;&#x59CB;&#x5316;&#x9875;&#x9762;
+    window.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&#x3E; {
+        // &#x9ED8;&#x8BA4;&#x9009;&#x62E9;&#x65B9;&#x6848;1
+        setPattern(1);
+        
+        // &#x786E;&#x4FDD;&#x97F3;&#x9891;&#x5728;&#x7528;&#x6237;&#x4EA4;&#x4E92;&#x540E;&#x521D;&#x59CB;&#x5316;
+        const initAudioOnInteraction = () =&#x3E; {
+            initAudio();
+            document.removeEventListener(&#x27;click&#x27;, initAudioOnInteraction);
+            document.removeEventListener(&#x27;touchstart&#x27;, initAudioOnInteraction);
+        };
+        
+        document.addEventListener(&#x27;click&#x27;, initAudioOnInteraction);
+        document.addEventListener(&#x27;touchstart&#x27;, initAudioOnInteraction);
+        
+        // &#x68C0;&#x67E5;&#x662F;&#x5426;&#x662F;&#x79FB;&#x52A8;&#x8BBE;&#x5907;&#xFF0C;&#x663E;&#x793A;&#x6DFB;&#x52A0;&#x5230;&#x684C;&#x9762;&#x63D0;&#x793A;
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            setTimeout(() =&#x3E; {
+                document.getElementById(&#x27;addHomeBtn&#x27;).classList.remove(&#x27;opacity-0&#x27;);
+            }, 3000);
+        }
+    });
+&#x3C;/script&#x3E;
