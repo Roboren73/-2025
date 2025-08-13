@@ -1,721 +1,582 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>给妖怪的跑步助手</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<!-- 主内容区 -->
+
+&#x3C;main class=&#x22;flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center&#x22;&#x3E;
+    &#x3C;!-- &#x4E13;&#x5C5E;&#x95EE;&#x5019;&#x8BED; --&#x3E;
+    &#x3C;div class=&#x22;mb-6 text-center&#x22;&#x3E;
+        &#x3C;p class=&#x22;text-secondary font-medium&#x22;&#x3E;&#x4EB2;&#x7231;&#x7684;&#x5996;&#x602A;&#xFF0C;&#x4ECA;&#x5929;&#x4E5F;&#x8981;&#x5143;&#x6C14;&#x6EE1;&#x6EE1;&#x5730;&#x8DD1;&#x6B65;&#x54E6;&#xFF01;&#x3C;/p&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 红心显示区域 - 仅显示最大尺寸红心 -->
+
+    &#x3C;div class=&#x22;relative mb-10&#x22;&#x3E;
+        &#x3C;div id=&#x22;pulseRing&#x22; class=&#x22;w-64 h-64 md:w-80 md:h-80 rounded-full border-8 border-primary/20 flex items-center justify-center pulse-ring&#x22;&#x3E;&#x3C;/div&#x3E;
+        &#x3C;div id=&#x22;heartContainer&#x22; class=&#x22;absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 h-56 md:w-72 md:h-72 rounded-full bg-white flex items-center justify-center shadow-lg&#x22;&#x3E;
+            &#x3C;!-- &#x6700;&#x5927;&#x5316;&#x7684;&#x7EA2;&#x5FC3;&#x56FE;&#x6807;&#xFF0C;&#x5145;&#x6EE1;&#x6574;&#x4E2A;&#x5706;&#x5708; --&#x3E;
+            &#x3C;i class=&#x22;fa fa-heart text-[120px] md:text-[160px] text-red-500 heart-beat&#x22;&#x3E;&#x3C;/i&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;!-- &#x88C5;&#x9970;&#x5143;&#x7D20; --&#x3E;
+        &#x3C;div class=&#x22;absolute -top-3 -left-3 w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white float&#x22;&#x3E;
+            &#x3C;i class=&#x22;fa fa-bolt&#x22;&#x3E;&#x3C;/i&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;div class=&#x22;absolute -bottom-2 -right-2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-white float&#x22; style=&#x22;animation-delay: 1s&#x22;&#x3E;
+            &#x3C;i class=&#x22;fa fa-heart&#x22;&#x3E;&#x3C;/i&#x3E;
+        &#x3C;/div&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 状态指示 -->
+
+    &#x3C;div id=&#x22;statusIndicator&#x22; class=&#x22;mb-8 px-6 py-3 rounded-full bg-pink-100 text-primary text-center transition-all-300&#x22;&#x3E;
+        &#x70B9;&#x51FB;&#x5F00;&#x59CB;&#x6309;&#x94AE;&#xFF0C;&#x4E00;&#x8D77;&#x8DD1;&#x6B65;&#x5427;~
+    &#x3C;/div&#x3E;
+
+    <!-- 控制按钮 -->
+
+    &#x3C;div class=&#x22;flex gap-4 mb-10&#x22;&#x3E;
+        &#x3C;button id=&#x22;startBtn&#x22; class=&#x22;px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-full shadow-lg hover:shadow-xl transition-all-300 flex items-center gap-2 ios-haptic&#x22;&#x3E;
+            &#x3C;i class=&#x22;fa fa-play&#x22;&#x3E;&#x3C;/i&#x3E;
+            &#x3C;span&#x3E;&#x5F00;&#x59CB;&#x8DD1;&#x6B65;&#x3C;/span&#x3E;
+        &#x3C;/button&#x3E;
+        &#x3C;button id=&#x22;stopBtn&#x22; class=&#x22;px-8 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-lg hover:shadow-xl transition-all-300 flex items-center gap-2 ios-haptic&#x22; disabled&#x3E;
+            &#x3C;i class=&#x22;fa fa-stop&#x22;&#x3E;&#x3C;/i&#x3E;
+            &#x3C;span&#x3E;&#x4F11;&#x606F;&#x4E00;&#x4E0B;&#x3C;/span&#x3E;
+        &#x3C;/button&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 操作提示 -->
+
+    &#x3C;div class=&#x22;text-sm text-gray-500 mb-6 text-center&#x22;&#x3E;
+        &#x3C;p&#x3E;&#x1F4A1; &#x624B;&#x673A;&#x97F3;&#x91CF;&#x952E;&#x53EF;&#x5FEB;&#x901F;&#x63A7;&#x5236;&#x5F00;&#x59CB;/&#x505C;&#x6B62;&#x3C;/p&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 数据统计 - 总步数替换为公里显示 -->
+
+    &#x3C;div class=&#x22;grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-2xl&#x22;&#x3E;
+        &#x3C;div class=&#x22;bg-white rounded-xl p-5 card-shadow transform hover:scale-105 transition-all-300&#x22;&#x3E;
+            &#x3C;div class=&#x22;text-gray-500 mb-1 flex items-center&#x22;&#x3E;
+                &#x3C;i class=&#x22;fa fa-clock-o text-primary mr-1&#x22;&#x3E;&#x3C;/i&#x3E; &#x6301;&#x7EED;&#x65F6;&#x95F4;
+            &#x3C;/div&#x3E;
+            &#x3C;div id=&#x22;duration&#x22; class=&#x22;text-2xl font-bold&#x22;&#x3E;00:00&#x3C;/div&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;div class=&#x22;bg-white rounded-xl p-5 card-shadow transform hover:scale-105 transition-all-300&#x22;&#x3E;
+            &#x3C;div class=&#x22;text-gray-500 mb-1 flex items-center&#x22;&#x3E;
+                &#x3C;i class=&#x22;fa fa-road text-primary mr-1&#x22;&#x3E;&#x3C;/i&#x3E; &#x8DD1;&#x6B65;&#x8DDD;&#x79BB;
+            &#x3C;/div&#x3E;
+            &#x3C;div id=&#x22;distance&#x22; class=&#x22;text-2xl font-bold&#x22;&#x3E;0.00 &#x516C;&#x91CC;&#x3C;/div&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;div class=&#x22;bg-white rounded-xl p-5 card-shadow transform hover:scale-105 transition-all-300&#x22;&#x3E;
+            &#x3C;div class=&#x22;text-gray-500 mb-1 flex items-center&#x22;&#x3E;
+                &#x3C;i class=&#x22;fa fa-tachometer text-primary mr-1&#x22;&#x3E;&#x3C;/i&#x3E; &#x914D;&#x901F; (&#x5206;/&#x516C;&#x91CC;)
+            &#x3C;/div&#x3E;
+            &#x3C;div id=&#x22;pace&#x22; class=&#x22;text-2xl font-bold&#x22;&#x3E;00:00&#x3C;/div&#x3E;
+        &#x3C;/div&#x3E;
+    &#x3C;/div&#x3E;
+
+    <!-- 手动计步按钮 -->
+
+    &#x3C;button id=&#x22;stepBtn&#x22; class=&#x22;mt-10 w-20 h-20 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-3xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all-300 ios-haptic&#x22; disabled&#x3E;
+        &#x3C;i class=&#x22;fa fa-plus&#x22;&#x3E;&#x3C;/i&#x3E;
+    &#x3C;/button&#x3E;
+    &#x3C;p class=&#x22;text-gray-500 mt-3 text-sm&#x22;&#x3E;&#x70B9;&#x51FB;&#x8BA1;&#x6570;&#x4E00;&#x6B65;&#x3C;/p&#x3E;
+
+    <!-- 添加到主屏幕提示按钮 -->
+
+    &#x3C;button id=&#x22;addHomeBtn&#x22; class=&#x22;mt-8 px-6 py-2 bg-pink-100 hover:bg-pink-200 text-primary rounded-lg text-sm flex items-center gap-2 transition-all-300 hidden ios-haptic&#x22;&#x3E;
+        &#x3C;i class=&#x22;fa fa-home&#x22;&#x3E;&#x3C;/i&#x3E;
+        &#x3C;span&#x3E;&#x6DFB;&#x52A0;&#x5230;&#x4E3B;&#x5C4F;&#x5E55;&#xFF0C;&#x65B9;&#x4FBF;&#x4E0B;&#x6B21;&#x4F7F;&#x7528;&#x3C;/span&#x3E;
+    &#x3C;/button&#x3E;
+&#x3C;/main&#x3E;
+
+<!-- 信息模态框 -->
+
+&#x3C;div id=&#x22;infoModal&#x22; class=&#x22;fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden&#x22;&#x3E;
+    &#x3C;div class=&#x22;bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl transform transition-all&#x22;&#x3E;
+        &#x3C;div class=&#x22;flex justify-between items-start mb-4&#x22;&#x3E;
+            &#x3C;h2 class=&#x22;text-2xl font-bold text-primary&#x22;&#x3E;&#x7ED9;&#x6211;&#x5BB6;&#x5996;&#x602A;&#x7684;&#x5C0F;&#x63D0;&#x793A;&#x3C;/h2&#x3E;
+            &#x3C;button id=&#x22;closeInfoBtn&#x22; class=&#x22;text-gray-500 hover:text-gray-700 ios-haptic&#x22;&#x3E;
+                &#x3C;i class=&#x22;fa fa-times text-xl&#x22;&#x3E;&#x3C;/i&#x3E;
+            &#x3C;/button&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;div class=&#x22;space-y-4 text-gray-700&#x22;&#x3E;
+            &#x3C;p&#x3E;&#x8DD1;&#x6B65;&#x65F6;&#x8DDF;&#x7740;&#x5927;&#x7EA2;&#x5FC3;&#x7684;&#x8282;&#x62CD;&#x8DD1;&#x5C31;&#x5BF9;&#x5566;&#xFF0C;&#x8282;&#x594F;&#x521A;&#x521A;&#x597D;~&#x3C;/p&#x3E;
+            &#x3C;p&#x3E;&#x6570;&#x636E;&#x533A;&#x57DF;&#x4F1A;&#x663E;&#x793A;&#x4F60;&#x8DD1;&#x4E86;&#x591A;&#x5C11;&#x516C;&#x91CC;&#xFF0C;&#x4E00;&#x6B65;&#x6309;0.7&#x7C73;&#x8BA1;&#x7B97;&#x54E6;~&#x3C;/p&#x3E;
+            &#x3C;p&#x3E;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;&#x624B;&#x673A;&#x97F3;&#x91CF;&#x952E;&#x5FEB;&#x901F;&#x63A7;&#x5236;&#x5F00;&#x59CB;/&#x505C;&#x6B62;&#xFF0C;&#x8DD1;&#x6B65;&#x65F6;&#x66F4;&#x65B9;&#x4FBF;~&#x3C;/p&#x3E;
+            &#x3C;p class=&#x22;pt-2 border-t border-pink-100&#x22;&#x3E;&#x3C;i class=&#x22;fa fa-heart text-primary mr-2&#x22;&#x3E;&#x3C;/i&#x3E;
+            &#x5996;&#x602A;&#x8DD1;&#x6B65;&#x7684;&#x65F6;&#x5019;&#x8981;&#x6CE8;&#x610F;&#x5B89;&#x5168;&#xFF0C;&#x8DD1;&#x5B8C;&#x6B65;&#x8BB0;&#x5F97;&#x62C9;&#x4F38;&#x54E6;&#xFF0C;&#x7231;&#x4F60;~&#x3C;/p&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;button id=&#x22;gotItBtn&#x22; class=&#x22;mt-6 w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all-300 ios-haptic&#x22;&#x3E;
+            &#x77E5;&#x9053;&#x5566;&#xFF0C;&#x8C22;&#x8C22;~
+        &#x3C;/button&#x3E;
+    &#x3C;/div&#x3E;
+&#x3C;/div&#x3E;
+
+<!-- 页脚 -->
+
+&#x3C;footer class=&#x22;bg-white/80 backdrop-blur-md py-4 text-center text-gray-500 text-sm&#x22;&#x3E;
+    &#x3C;div class=&#x22;container mx-auto px-4&#x22;&#x3E;
+        &#x3C;p&#x3E;&#x7ED9;&#x6211;&#x6700;&#x7231;&#x7684;&#x5996;&#x602A; &#x26;copy; &#x6C38;&#x8FDC;&#x6709;&#x6548;&#x3C;/p&#x3E;
+    &#x3C;/div&#x3E;
+&#x3C;/footer&#x3E;
+
+&#x3C;script&#x3E;
+    // &#x5168;&#x5C40;&#x53D8;&#x91CF;
+    let isRunning = false;
+    let startTime = null;
+    let timer = null;
+    let totalSteps = 0;
+    let stepTimestamps = [];
+    let distance = 0; // &#x8DDD;&#x79BB;(&#x516C;&#x91CC;)
+    let currentPace = 0; // &#x5F53;&#x524D;&#x914D;&#x901F;(&#x79D2;/&#x516C;&#x91CC;)
+    let lastStepTime = 0;
+    let wakeLock = null;
+    let backgroundAudioBuffer = null;
+    let backgroundAudioSource = null;
+    let isInstalledPWA = false;
     
-    <!-- 配置Tailwind自定义颜色和字体，采用温馨的粉紫色调 -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#E94498', // 可爱粉色
-                        secondary: '#9333EA', // 温柔紫色
-                        accent: '#FBBF24', // 明亮点缀色
-                        light: '#FFF5F9', // 浅色背景
-                        dark: '#4C1D95'  // 深色文字
-                    },
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
+    // &#x6B65;&#x957F;(&#x7C73;) - &#x53EF;&#x6839;&#x636E;&#x5B9E;&#x9645;&#x60C5;&#x51B5;&#x8C03;&#x6574;
+    const STEP_LENGTH = 0.7;
+    // &#x76EE;&#x6807;&#x6B65;&#x9891; (&#x6B65;/&#x5206;&#x949F;)
+    const TARGET_CADENCE = 180;
+    // &#x6B65;&#x9891;&#x8BA1;&#x7B97;&#x7A97;&#x53E3; (&#x79D2;)
+    const WINDOW_SECONDS = 10;
     
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .pulse-ring {
-                animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-            }
-            .heart-beat {
-                animation: heart-beat 1s ease-in-out infinite;
-            }
-            .float {
-                animation: float 3s ease-in-out infinite;
-            }
-            .card-shadow {
-                box-shadow: 0 10px 25px -5px rgba(233, 68, 152, 0.1), 0 8px 10px -6px rgba(233, 68, 152, 0.1);
-            }
-            .transition-all-300 {
-                transition: all 300ms ease-in-out;
-            }
-            .ios-haptic {
-                -webkit-tap-highlight-color: transparent;
-            }
-        }
-        
-        @keyframes pulse-ring {
-            0% {
-                transform: scale(0.93);
-                box-shadow: 0 0 0 0 rgba(233, 68, 152, 0.7);
-            }
-            
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 10px rgba(233, 68, 152, 0);
-            }
-            
-            100% {
-                transform: scale(0.93);
-                box-shadow: 0 0 0 0 rgba(233, 68, 152, 0);
-            }
-        }
-        
-        @keyframes heart-beat {
-            0% {
-                transform: scale(0.9);
-            }
-            14% {
-                transform: scale(1);
-            }
-            28% {
-                transform: scale(0.9);
-            }
-            42% {
-                transform: scale(1);
-            }
-            70% {
-                transform: scale(0.9);
-            }
-            100% {
-                transform: scale(0.9);
-            }
-        }
-        
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-            100% {
-                transform: translateY(0px);
-            }
-        }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-light to-pink-50 min-h-screen font-sans text-dark flex flex-col">
-    <!-- 顶部导航栏 -->
-    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <i class="fa fa-heart text-primary text-2xl float"></i>
-                <h1 class="text-xl font-bold text-primary">给妖怪的跑步助手</h1>
-            </div>
-            <button id="infoBtn" class="p-2 rounded-full hover:bg-pink-100 transition-all-300 ios-haptic">
-                <i class="fa fa-star text-accent"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- 主内容区 -->
-    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center">
-        <!-- 专属问候语 -->
-        <div class="mb-6 text-center">
-            <p class="text-secondary font-medium">亲爱的妖怪，今天也要元气满满地跑步哦！</p>
-        </div>
-        
-        <!-- 红心显示区域 -->
-        <div class="relative mb-10">
-            <div id="pulseRing" class="w-64 h-64 md:w-80 md:h-80 rounded-full border-8 border-primary/20 flex items-center justify-center pulse-ring"></div>
-            <div id="heartContainer" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 h-56 md:w-72 md:h-72 rounded-full bg-white flex flex-col items-center justify-center shadow-lg">
-                <!-- 放大的大红心图标，铺满圆圈 -->
-                <i class="fa fa-heart text-[100px] md:text-[140px] text-red-500 heart-beat"></i>
-                
-                <!-- 路程显示（位置调整到红心下方边缘） -->
-                <div class="mt-[-20px] text-center bg-white/80 backdrop-blur-sm px-4 py-1 rounded-full">
-                    <span id="distance" class="text-3xl md:text-4xl font-bold text-primary">0.00</span>
-                    <span class="text-gray-500 text-lg">公里</span>
-                </div>
-            </div>
-            <!-- 装饰元素 -->
-            <div class="absolute -top-3 -left-3 w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white float">
-                <i class="fa fa-bolt"></i>
-            </div>
-            <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-white float" style="animation-delay: 1s">
-                <i class="fa fa-heart"></i>
-            </div>
-        </div>
-        
-        <!-- 状态指示 -->
-        <div id="statusIndicator" class="mb-8 px-6 py-3 rounded-full bg-pink-100 text-primary text-center transition-all-300">
-            点击开始按钮，一起跑步吧~
-        </div>
-        
-        <!-- 控制按钮 -->
-        <div class="flex gap-4 mb-10">
-            <button id="startBtn" class="px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-full shadow-lg hover:shadow-xl transition-all-300 flex items-center gap-2 ios-haptic">
-                <i class="fa fa-play"></i>
-                <span>开始跑步</span>
-            </button>
-            <button id="stopBtn" class="px-8 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-lg hover:shadow-xl transition-all-300 flex items-center gap-2 ios-haptic" disabled>
-                <i class="fa fa-stop"></i>
-                <span>休息一下</span>
-            </button>
-        </div>
-        
-        <!-- 数据统计 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-2xl">
-            <div class="bg-white rounded-xl p-5 card-shadow transform hover:scale-105 transition-all-300">
-                <div class="text-gray-500 mb-1 flex items-center">
-                    <i class="fa fa-clock-o text-primary mr-1"></i> 持续时间
-                </div>
-                <div id="duration" class="text-2xl font-bold">00:00</div>
-            </div>
-            <div class="bg-white rounded-xl p-5 card-shadow transform hover:scale-105 transition-all-300">
-                <div class="text-gray-500 mb-1 flex items-center">
-                    <i class="fa fa-shoe-prints text-primary mr-1"></i> 总步数
-                </div>
-                <div id="totalSteps" class="text-2xl font-bold">0</div>
-            </div>
-            <div class="bg-white rounded-xl p-5 card-shadow transform hover:scale-105 transition-all-300">
-                <div class="text-gray-500 mb-1 flex items-center">
-                    <i class="fa fa-tachometer text-primary mr-1"></i> 配速 (分/公里)
-                </div>
-                <div id="pace" class="text-2xl font-bold">00:00</div>
-            </div>
-        </div>
-        
-        <!-- 手动计步按钮 -->
-        <button id="stepBtn" class="mt-10 w-20 h-20 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-3xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all-300 ios-haptic" disabled>
-            <i class="fa fa-plus"></i>
-        </button>
-        <p class="text-gray-500 mt-3 text-sm">点击计数一步</p>
-        
-        <!-- 添加到主屏幕提示按钮 -->
-        <button id="addHomeBtn" class="mt-8 px-6 py-2 bg-pink-100 hover:bg-pink-200 text-primary rounded-lg text-sm flex items-center gap-2 transition-all-300 hidden ios-haptic">
-            <i class="fa fa-home"></i>
-            <span>添加到主屏幕，方便下次使用</span>
-        </button>
-    </main>
-
-    <!-- 信息模态框 -->
-    <div id="infoModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl transform transition-all">
-            <div class="flex justify-between items-start mb-4">
-                <h2 class="text-2xl font-bold text-primary">给我家妖怪的小提示</h2>
-                <button id="closeInfoBtn" class="text-gray-500 hover:text-gray-700 ios-haptic">
-                    <i class="fa fa-times text-xl"></i>
-                </button>
-            </div>
-            <div class="space-y-4 text-gray-700">
-                <p>跑步时保持舒适的节奏最重要啦，跟着红心的节拍跑就对啦~</p>
-                <p>应用会根据你的步数估算跑步距离，一步按0.7米计算哦~</p>
-                <p>点击开始后，会有可爱的提示音和红心跳动帮你掌握节奏~</p>
-                <p class="pt-2 border-t border-pink-100"><i class="fa fa-heart text-primary mr-2"></i>
-                妖怪跑步的时候要注意安全，跑完步记得拉伸哦，爱你~</p>
-            </div>
-            <button id="gotItBtn" class="mt-6 w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all-300 ios-haptic">
-                知道啦，谢谢~
-            </button>
-        </div>
-    </div>
-
-    <!-- 页脚 -->
-    <footer class="bg-white/80 backdrop-blur-md py-4 text-center text-gray-500 text-sm">
-        <div class="container mx-auto px-4">
-            <p>给我最爱的妖怪 &copy; 永远有效</p>
-        </div>
-    </footer>
-
-    <script>
-        // 全局变量
-        let isRunning = false;
-        let startTime = null;
-        let timer = null;
-        let totalSteps = 0;
-        let stepTimestamps = [];
-        let distance = 0; // 距离(公里)
-        let currentPace = 0; // 当前配速(秒/公里)
-        let lastStepTime = 0;
-        let wakeLock = null;
-        let backgroundAudioBuffer = null;
-        let backgroundAudioSource = null;
-        let isInstalledPWA = false;
-        
-        // 步长(米) - 可根据实际情况调整
-        const STEP_LENGTH = 0.7;
-        // 目标步频 (步/分钟)
-        const TARGET_CADENCE = 180;
-        // 步频计算窗口 (秒)
-        const WINDOW_SECONDS = 10;
-        
-        // DOM元素
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const stepBtn = document.getElementById('stepBtn');
-        const distanceEl = document.getElementById('distance');
-        const durationEl = document.getElementById('duration');
-        const totalStepsEl = document.getElementById('totalSteps');
-        const paceEl = document.getElementById('pace');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const pulseRing = document.getElementById('pulseRing');
-        const heartContainer = document.getElementById('heartContainer');
-        const infoBtn = document.getElementById('infoBtn');
-        const infoModal = document.getElementById('infoModal');
-        const closeInfoBtn = document.getElementById('closeInfoBtn');
-        const gotItBtn = document.getElementById('gotItBtn');
-        const addHomeBtn = document.getElementById('addHomeBtn');
-        
-        // 音频上下文和提示音
-        let audioContext = null;
-        
-        // 检查是否是苹果设备
-        function isAppleDevice() {
-            return /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream;
-        }
-        
-        // 检查是否是PWA模式（从主屏幕打开）
-        function checkPWAInstalled() {
-            return window.matchMedia('(display-mode: standalone)').matches || 
-                   window.navigator.standalone === true;
-        }
-        
-        // 初始化时检查设备类型并显示提示
+    // DOM&#x5143;&#x7D20;
+    const startBtn = document.getElementById(&#x27;startBtn&#x27;);
+    const stopBtn = document.getElementById(&#x27;stopBtn&#x27;);
+    const stepBtn = document.getElementById(&#x27;stepBtn&#x27;);
+    const distanceEl = document.getElementById(&#x27;distance&#x27;);
+    const durationEl = document.getElementById(&#x27;duration&#x27;);
+    const paceEl = document.getElementById(&#x27;pace&#x27;);
+    const statusIndicator = document.getElementById(&#x27;statusIndicator&#x27;);
+    const pulseRing = document.getElementById(&#x27;pulseRing&#x27;);
+    const heartContainer = document.getElementById(&#x27;heartContainer&#x27;);
+    const infoBtn = document.getElementById(&#x27;infoBtn&#x27;);
+    const infoModal = document.getElementById(&#x27;infoModal&#x27;);
+    const closeInfoBtn = document.getElementById(&#x27;closeInfoBtn&#x27;);
+    const gotItBtn = document.getElementById(&#x27;gotItBtn&#x27;);
+    const addHomeBtn = document.getElementById(&#x27;addHomeBtn&#x27;);
+    
+    // &#x97F3;&#x9891;&#x4E0A;&#x4E0B;&#x6587;&#x548C;&#x63D0;&#x793A;&#x97F3;
+    let audioContext = null;
+    
+    // &#x68C0;&#x67E5;&#x662F;&#x5426;&#x662F;&#x82F9;&#x679C;&#x8BBE;&#x5907;
+    function isAppleDevice() {
+        return /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) &#x26;&#x26; !window.MSStream;
+    }
+    
+    // &#x68C0;&#x67E5;&#x662F;&#x5426;&#x662F;PWA&#x6A21;&#x5F0F;&#xFF08;&#x4ECE;&#x4E3B;&#x5C4F;&#x5E55;&#x6253;&#x5F00;&#xFF09;
+    function checkPWAInstalled() {
+        return window.matchMedia(&#x27;(display-mode: standalone)&#x27;).matches || 
+               window.navigator.standalone === true;
+    }
+    
+    // &#x521D;&#x59CB;&#x5316;&#x8BBE;&#x5907;&#x76F8;&#x5173;&#x8BBE;&#x7F6E;
+    function initDeviceSettings() {
         if (isAppleDevice()) {
-            // 检查是否已安装为PWA
             isInstalledPWA = checkPWAInstalled();
             if (!isInstalledPWA) {
-                addHomeBtn.classList.remove('hidden');
+                addHomeBtn.classList.remove(&#x27;hidden&#x27;);
             } else {
-                addHomeBtn.classList.add('hidden');
-                statusIndicator.textContent = "妖怪，从主屏幕打开啦，准备跑步吧~";
+                addHomeBtn.classList.add(&#x27;hidden&#x27;);
+                statusIndicator.textContent = &#x22;&#x5996;&#x602A;&#xFF0C;&#x4ECE;&#x4E3B;&#x5C4F;&#x5E55;&#x6253;&#x5F00;&#x5566;&#xFF0C;&#x51C6;&#x5907;&#x8DD1;&#x6B65;&#x5427;~&#x22;;
             }
             
-            // 监听PWA模式变化
-            window.matchMedia('(display-mode: standalone)').addEventListener('change', (evt) => {
+            window.matchMedia(&#x27;(display-mode: standalone)&#x27;).addEventListener(&#x27;change&#x27;, (evt) =&#x3E; {
                 isInstalledPWA = evt.matches;
                 if (isInstalledPWA) {
-                    addHomeBtn.classList.add('hidden');
+                    addHomeBtn.classList.add(&#x27;hidden&#x27;);
                 }
             });
         } else {
-            // 非苹果设备也显示添加到主屏幕按钮
-            addHomeBtn.classList.remove('hidden');
-            addHomeBtn.innerHTML = '<i class="fa fa-home"></i><span>添加到桌面，方便下次使用</span>';
+            addHomeBtn.classList.remove(&#x27;hidden&#x27;);
+            addHomeBtn.innerHTML = &#x27;&#x3C;i class=&#x22;fa fa-home&#x22;&#x3E;&#x3C;/i&#x3E;&#x3C;span&#x3E;&#x6DFB;&#x52A0;&#x5230;&#x684C;&#x9762;&#xFF0C;&#x65B9;&#x4FBF;&#x4E0B;&#x6B21;&#x4F7F;&#x7528;&#x3C;/span&#x3E;&#x27;;
         }
-        
-        // 添加到主屏幕提示
-        document.getElementById('addHomeBtn').addEventListener('click', () => {
-            if (isAppleDevice()) {
-                alert('妖怪，点击Safari底部的分享按钮，选择"添加到主屏幕"，这样下次就好找啦~');
-            } else {
-                alert('妖怪，点击浏览器菜单，选择"添加到桌面"，这样下次就方便打开啦~');
-            }
-        });
-        
-        // 请求唤醒锁（iOS 16.4+支持）
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator && isAppleDevice()) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('唤醒锁已获取');
-                    
-                    // 监听释放事件，尝试重新获取
-                    wakeLock.addEventListener('release', () => {
-                        console.log('唤醒锁已释放，尝试重新获取');
-                        if (isRunning) {
-                            setTimeout(requestWakeLock, 1000);
-                        }
-                    });
-                }
-            } catch (err) {
-                console.warn('无法获取唤醒锁:', err);
-            }
+    }
+    
+    // &#x6DFB;&#x52A0;&#x5230;&#x4E3B;&#x5C4F;&#x5E55;&#x63D0;&#x793A;
+    document.getElementById(&#x27;addHomeBtn&#x27;).addEventListener(&#x27;click&#x27;, () =&#x3E; {
+        if (isAppleDevice()) {
+            alert(&#x27;&#x5996;&#x602A;&#xFF0C;&#x70B9;&#x51FB;Safari&#x5E95;&#x90E8;&#x7684;&#x5206;&#x4EAB;&#x6309;&#x94AE;&#xFF0C;&#x9009;&#x62E9;&#x22;&#x6DFB;&#x52A0;&#x5230;&#x4E3B;&#x5C4F;&#x5E55;&#x22;&#xFF0C;&#x8FD9;&#x6837;&#x4E0B;&#x6B21;&#x5C31;&#x597D;&#x627E;&#x5566;~&#x27;);
+        } else {
+            alert(&#x27;&#x5996;&#x602A;&#xFF0C;&#x70B9;&#x51FB;&#x6D4F;&#x89C8;&#x5668;&#x83DC;&#x5355;&#xFF0C;&#x9009;&#x62E9;&#x22;&#x6DFB;&#x52A0;&#x5230;&#x684C;&#x9762;&#x22;&#xFF0C;&#x8FD9;&#x6837;&#x4E0B;&#x6B21;&#x5C31;&#x65B9;&#x4FBF;&#x6253;&#x5F00;&#x5566;~&#x27;);
         }
-        
-        // 释放唤醒锁
-        function releaseWakeLock() {
-            if (wakeLock) {
-                wakeLock.release()
-                    .then(() => {
-                        wakeLock = null;
-                        console.log('唤醒锁已释放');
-                    })
-                    .catch(err => {
-                        console.error('释放唤醒锁失败:', err);
-                    });
-            }
-        }
-        
-        // 创建静默音频缓冲区
-        async function createSilentAudioBuffer() {
-            const bufferSize = 44100 * 2; // 2秒的静默音频
-            const buffer = audioContext.createBuffer(1, bufferSize, 44100);
-            const data = buffer.getChannelData(0);
-            
-            // 填充静默数据
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = 0; // 完全静默
-            }
-            
-            return buffer;
-        }
-        
-        // 启动背景音频
-        async function startBackgroundAudio() {
-            if (!audioContext || backgroundAudioSource) return;
-            
-            try {
-                if (!backgroundAudioBuffer) {
-                    backgroundAudioBuffer = await createSilentAudioBuffer();
-                }
+    });
+    
+    // &#x8BF7;&#x6C42;&#x5524;&#x9192;&#x9501;
+    async function requestWakeLock() {
+        try {
+            if (&#x27;wakeLock&#x27; in navigator &#x26;&#x26; isAppleDevice()) {
+                wakeLock = await navigator.wakeLock.request(&#x27;screen&#x27;);
+                console.log(&#x27;&#x5524;&#x9192;&#x9501;&#x5DF2;&#x83B7;&#x53D6;&#x27;);
                 
-                // 创建音频源并循环播放静默音频，保持音频上下文活跃
-                backgroundAudioSource = audioContext.createBufferSource();
-                backgroundAudioSource.buffer = backgroundAudioBuffer;
-                backgroundAudioSource.loop = true; // 无限循环
-                backgroundAudioSource.connect(audioContext.destination);
-                backgroundAudioSource.start(0);
-                
-                console.log('背景音频已启动');
-            } catch (e) {
-                console.warn('启动背景音频失败:', e);
-            }
-        }
-        
-        // 停止背景音频
-        function stopBackgroundAudio() {
-            if (backgroundAudioSource) {
-                backgroundAudioSource.stop();
-                backgroundAudioSource.disconnect();
-                backgroundAudioSource = null;
-                console.log('背景音频已停止');
-            }
-        }
-        
-        // 初始化音频上下文
-        function initAudio() {
-            try {
-                // 创建音频上下文，兼容各种浏览器
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                console.log('音频上下文初始化成功');
-                return true;
-            } catch (e) {
-                console.warn('音频初始化失败:', e);
-                alert('妖怪，需要允许音频权限才能听到提示音哦~');
-                return false;
-            }
-        }
-        
-        // 播放提示音（可爱的双音提示）
-        function playBeep() {
-            if (!audioContext) return;
-            
-            try {
-                // 确保音频上下文已启动
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                
-                // 创建两个振荡器，产生可爱的提示音
-                const oscillator1 = audioContext.createOscillator();
-                const oscillator2 = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                // 可爱的音符组合
-                oscillator1.type = 'sine';
-                oscillator1.frequency.setValueAtTime(988, audioContext.currentTime); // C6
-                
-                oscillator2.type = 'sine';
-                oscillator2.frequency.setValueAtTime(1319, audioContext.currentTime); // E6
-                
-                // 调整音量曲线
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
-                gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.2);
-                
-                // 连接音频节点
-                oscillator1.connect(gainNode);
-                oscillator2.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // 启动并停止振荡器
-                oscillator1.start();
-                oscillator2.start();
-                oscillator1.stop(audioContext.currentTime + 0.2);
-                oscillator2.stop(audioContext.currentTime + 0.2);
-                
-                // 添加触觉反馈
-                if (window.navigator.vibrate) {
-                    window.navigator.vibrate(30);
-                }
-            } catch (e) {
-                console.warn('播放提示音失败:', e);
-            }
-        }
-        
-        // 开始跟踪
-        function startTracking() {
-            if (isRunning) return;
-            
-            // 确保音频上下文已初始化
-            if (!audioContext && !initAudio()) {
-                return;
-            }
-            
-            // 恢复音频上下文
-            if (audioContext.state === 'suspended') {
-                audioContext.resume().then(() => {
-                    console.log('音频上下文已恢复');
+                wakeLock.addEventListener(&#x27;release&#x27;, () =&#x3E; {
+                    console.log(&#x27;&#x5524;&#x9192;&#x9501;&#x5DF2;&#x91CA;&#x653E;&#xFF0C;&#x5C1D;&#x8BD5;&#x91CD;&#x65B0;&#x83B7;&#x53D6;&#x27;);
+                    if (isRunning) {
+                        setTimeout(requestWakeLock, 1000);
+                    }
                 });
             }
-            
-            // 启动背景音频
-            startBackgroundAudio();
-            
-            // 请求唤醒锁
-            if (isAppleDevice()) {
-                requestWakeLock();
+        } catch (err) {
+            console.warn(&#x27;&#x65E0;&#x6CD5;&#x83B7;&#x53D6;&#x5524;&#x9192;&#x9501;:&#x27;, err);
+        }
+    }
+    
+    // &#x91CA;&#x653E;&#x5524;&#x9192;&#x9501;
+    function releaseWakeLock() {
+        if (wakeLock) {
+            wakeLock.release()
+                .then(() =&#x3E; {
+                    wakeLock = null;
+                    console.log(&#x27;&#x5524;&#x9192;&#x9501;&#x5DF2;&#x91CA;&#x653E;&#x27;);
+                })
+                .catch(err =&#x3E; {
+                    console.error(&#x27;&#x91CA;&#x653E;&#x5524;&#x9192;&#x9501;&#x5931;&#x8D25;:&#x27;, err);
+                });
+        }
+    }
+    
+    // &#x97F3;&#x9891;&#x76F8;&#x5173;&#x529F;&#x80FD;
+    async function createSilentAudioBuffer() {
+        const bufferSize = 44100 * 2;
+        const buffer = audioContext.createBuffer(1, bufferSize, 44100);
+        const data = buffer.getChannelData(0);
+        
+        for (let i = 0; i &#x3C; bufferSize; i++) {
+            data[i] = 0;
+        }
+        
+        return buffer;
+    }
+    
+    async function startBackgroundAudio() {
+        if (!audioContext || backgroundAudioSource) return;
+        
+        try {
+            if (!backgroundAudioBuffer) {
+                backgroundAudioBuffer = await createSilentAudioBuffer();
             }
             
-            isRunning = true;
-            startTime = new Date();
-            totalSteps = 0;
-            distance = 0;
-            currentPace = 0;
-            stepTimestamps = [];
-            lastStepTime = 0;
+            backgroundAudioSource = audioContext.createBufferSource();
+            backgroundAudioSource.buffer = backgroundAudioBuffer;
+            backgroundAudioSource.loop = true;
+            backgroundAudioSource.connect(audioContext.destination);
+            backgroundAudioSource.start(0);
             
-            // 更新UI状态
-            startBtn.disabled = true;
-            startBtn.classList.remove('bg-primary', 'hover:bg-primary/90');
-            startBtn.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-500');
-            
-            stopBtn.disabled = false;
-            stopBtn.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700');
-            stopBtn.classList.add('bg-secondary', 'hover:bg-secondary/90', 'text-white');
-            
-            stepBtn.disabled = false;
-            stepBtn.classList.remove('bg-primary/10', 'hover:bg-primary/20');
-            stepBtn.classList.add('bg-accent/20', 'hover:bg-accent/30', 'text-accent');
-            
-            statusIndicator.textContent = `妖怪加油！跟着红心的节奏跑~`;
-            statusIndicator.classList.remove('bg-pink-100', 'text-primary');
-            statusIndicator.classList.add('bg-secondary/10', 'text-secondary');
-            
-            // 启动定时器
-            timer = setInterval(updateStats, 1000);
-            
-            // 开始目标步频提示
-            startCadenceGuide();
-            
-            // 温馨提示
-            setTimeout(() => {
-                statusIndicator.textContent = `保持节奏，妖怪跑得真棒！`;
-            }, 3000);
+            console.log(&#x27;&#x80CC;&#x666F;&#x97F3;&#x9891;&#x5DF2;&#x542F;&#x52A8;&#x27;);
+        } catch (e) {
+            console.warn(&#x27;&#x542F;&#x52A8;&#x80CC;&#x666F;&#x97F3;&#x9891;&#x5931;&#x8D25;:&#x27;, e);
         }
-        
-        // 停止跟踪
-        function stopTracking() {
-            if (!isRunning) return;
-            
-            isRunning = false;
-            clearInterval(timer);
-            clearInterval(guideInterval);
-            
-            // 释放唤醒锁
-            releaseWakeLock();
-            
-            // 停止背景音频
-            stopBackgroundAudio();
-            
-            // 更新UI状态
-            startBtn.disabled = false;
-            startBtn.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'text-gray-500');
-            startBtn.classList.add('bg-primary', 'hover:bg-primary/90');
-            
-            stopBtn.disabled = true;
-            stopBtn.classList.remove('bg-secondary', 'hover:bg-secondary/90', 'text-white');
-            stopBtn.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700');
-            
-            stepBtn.disabled = true;
-            stepBtn.classList.remove('bg-accent/20', 'hover:bg-accent/30', 'text-accent');
-            stepBtn.classList.add('bg-primary/10', 'hover:bg-primary/20', 'text-primary');
-            
-            statusIndicator.textContent = '妖怪辛苦啦，休息一下吧~';
-            statusIndicator.classList.remove('bg-secondary/10', 'text-secondary');
-            statusIndicator.classList.add('bg-pink-100', 'text-primary');
-            
-            // 重置脉冲动画
-            pulseRing.style.animation = 'none';
-            setTimeout(() => {
-                pulseRing.style.animation = '';
-            }, 10);
+    }
+    
+    function stopBackgroundAudio() {
+        if (backgroundAudioSource) {
+            backgroundAudioSource.stop();
+            backgroundAudioSource.disconnect();
+            backgroundAudioSource = null;
+            console.log(&#x27;&#x80CC;&#x666F;&#x97F3;&#x9891;&#x5DF2;&#x505C;&#x6B62;&#x27;);
         }
+    }
+    
+    function initAudio() {
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log(&#x27;&#x97F3;&#x9891;&#x4E0A;&#x4E0B;&#x6587;&#x521D;&#x59CB;&#x5316;&#x6210;&#x529F;&#x27;);
+            return true;
+        } catch (e) {
+            console.warn(&#x27;&#x97F3;&#x9891;&#x521D;&#x59CB;&#x5316;&#x5931;&#x8D25;:&#x27;, e);
+            alert(&#x27;&#x5996;&#x602A;&#xFF0C;&#x9700;&#x8981;&#x5141;&#x8BB8;&#x97F3;&#x9891;&#x6743;&#x9650;&#x624D;&#x80FD;&#x542C;&#x5230;&#x63D0;&#x793A;&#x97F3;&#x54E6;~&#x27;);
+            return false;
+        }
+    }
+    
+    function playBeep() {
+        if (!audioContext) return;
         
-        // 记录一步
-        function recordStep() {
-            if (!isRunning) return;
+        try {
+            if (audioContext.state === &#x27;suspended&#x27;) {
+                audioContext.resume();
+            }
             
-            const now = new Date();
-            const timestamp = now.getTime();
+            const oscillator1 = audioContext.createOscillator();
+            const oscillator2 = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
             
-            totalSteps++;
-            stepTimestamps.push(timestamp);
+            oscillator1.type = &#x27;sine&#x27;;
+            oscillator1.frequency.setValueAtTime(988, audioContext.currentTime);
             
-            // 计算距离 (公里) = 步数 × 步长(米) ÷ 1000
-            distance = (totalSteps * STEP_LENGTH) / 1000;
+            oscillator2.type = &#x27;sine&#x27;;
+            oscillator2.frequency.setValueAtTime(1319, audioContext.currentTime);
             
-            // 更新UI
-            updateUI();
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.2);
             
-            // 触觉反馈
+            oscillator1.connect(gainNode);
+            oscillator2.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator1.start();
+            oscillator2.start();
+            oscillator1.stop(audioContext.currentTime + 0.2);
+            oscillator2.stop(audioContext.currentTime + 0.2);
+            
             if (window.navigator.vibrate) {
-                window.navigator.vibrate(20);
+                window.navigator.vibrate(30);
             }
+        } catch (e) {
+            console.warn(&#x27;&#x64AD;&#x653E;&#x63D0;&#x793A;&#x97F3;&#x5931;&#x8D25;:&#x27;, e);
+        }
+    }
+    
+    // &#x8DD1;&#x6B65;&#x63A7;&#x5236;&#x529F;&#x80FD;
+    function startTracking() {
+        if (isRunning) return;
+        
+        if (!audioContext &#x26;&#x26; !initAudio()) {
+            return;
         }
         
-        // 更新统计数据
-        function updateStats() {
-            if (!isRunning || !startTime) return;
-            
-            // 计算持续时间
-            const now = new Date();
-            const durationMs = now - startTime;
-            const minutes = Math.floor(durationMs / 60000);
-            const seconds = Math.floor((durationMs % 60000) / 1000);
-            durationEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            // 计算配速 (分/公里) = 总时间(秒) ÷ 距离(公里) ÷ 60
-            if (distance > 0) {
-                const totalSeconds = durationMs / 1000;
-                const paceMinutes = Math.floor(totalSeconds / distance / 60);
-                const paceSeconds = Math.floor((totalSeconds / distance) % 60);
-                paceEl.textContent = `${paceMinutes.toString().padStart(2, '0')}:${paceSeconds.toString().padStart(2, '0')}`;
+        if (audioContext.state === &#x27;suspended&#x27;) {
+            audioContext.resume().then(() =&#x3E; {
+                console.log(&#x27;&#x97F3;&#x9891;&#x4E0A;&#x4E0B;&#x6587;&#x5DF2;&#x6062;&#x590D;&#x27;);
+            });
+        }
+        
+        startBackgroundAudio();
+        
+        if (isAppleDevice()) {
+            requestWakeLock();
+        }
+        
+        isRunning = true;
+        startTime = new Date();
+        totalSteps = 0;
+        distance = 0;
+        currentPace = 0;
+        stepTimestamps = [];
+        lastStepTime = 0;
+        
+        // &#x66F4;&#x65B0;&#x6309;&#x94AE;&#x72B6;&#x6001;
+        startBtn.disabled = true;
+        startBtn.classList.remove(&#x27;bg-primary&#x27;, &#x27;hover:bg-primary/90&#x27;);
+        startBtn.classList.add(&#x27;bg-gray-200&#x27;, &#x27;hover:bg-gray-300&#x27;, &#x27;text-gray-500&#x27;);
+        
+        stopBtn.disabled = false;
+        stopBtn.classList.remove(&#x27;bg-gray-200&#x27;, &#x27;hover:bg-gray-300&#x27;, &#x27;text-gray-700&#x27;);
+        stopBtn.classList.add(&#x27;bg-secondary&#x27;, &#x27;hover:bg-secondary/90&#x27;, &#x27;text-white&#x27;);
+        
+        stepBtn.disabled = false;
+        stepBtn.classList.remove(&#x27;bg-primary/10&#x27;, &#x27;hover:bg-primary/20&#x27;);
+        stepBtn.classList.add(&#x27;bg-accent/20&#x27;, &#x27;hover:bg-accent/30&#x27;, &#x27;text-accent&#x27;);
+        
+        statusIndicator.textContent = &#x60;&#x5996;&#x602A;&#x52A0;&#x6CB9;&#xFF01;&#x8DDF;&#x7740;&#x7EA2;&#x5FC3;&#x7684;&#x8282;&#x594F;&#x8DD1;~&#x60;;
+        statusIndicator.classList.remove(&#x27;bg-pink-100&#x27;, &#x27;text-primary&#x27;);
+        statusIndicator.classList.add(&#x27;bg-secondary/10&#x27;, &#x27;text-secondary&#x27;);
+        
+        timer = setInterval(updateStats, 1000);
+        startCadenceGuide();
+        
+        setTimeout(() =&#x3E; {
+            statusIndicator.textContent = &#x60;&#x4FDD;&#x6301;&#x8282;&#x594F;&#xFF0C;&#x5996;&#x602A;&#x8DD1;&#x5F97;&#x771F;&#x68D2;&#xFF01;&#x60;;
+        }, 3000);
+    }
+    
+    function stopTracking() {
+        if (!isRunning) return;
+        
+        isRunning = false;
+        clearInterval(timer);
+        clearInterval(guideInterval);
+        
+        releaseWakeLock();
+        stopBackgroundAudio();
+        
+        // &#x66F4;&#x65B0;&#x6309;&#x94AE;&#x72B6;&#x6001;
+        startBtn.disabled = false;
+        startBtn.classList.remove(&#x27;bg-gray-200&#x27;, &#x27;hover:bg-gray-300&#x27;, &#x27;text-gray-500&#x27;);
+        startBtn.classList.add(&#x27;bg-primary&#x27;, &#x27;hover:bg-primary/90&#x27;);
+        
+        stopBtn.disabled = true;
+        stopBtn.classList.remove(&#x27;bg-secondary&#x27;, &#x27;hover:bg-secondary/90&#x27;, &#x27;text-white&#x27;);
+        stopBtn.classList.add(&#x27;bg-gray-200&#x27;, &#x27;hover:bg-gray-300&#x27;, &#x27;text-gray-700&#x27;);
+        
+        stepBtn.disabled = true;
+        stepBtn.classList.remove(&#x27;bg-accent/20&#x27;, &#x27;hover:bg-accent/30&#x27;, &#x27;text-accent&#x27;);
+        stepBtn.classList.add(&#x27;bg-primary/10&#x27;, &#x27;hover:bg-primary/20&#x27;, &#x27;text-primary&#x27;);
+        
+        statusIndicator.textContent = &#x27;&#x5996;&#x602A;&#x8F9B;&#x82E6;&#x5566;&#xFF0C;&#x4F11;&#x606F;&#x4E00;&#x4E0B;&#x5427;~&#x27;;
+        statusIndicator.classList.remove(&#x27;bg-secondary/10&#x27;, &#x27;text-secondary&#x27;);
+        statusIndicator.classList.add(&#x27;bg-pink-100&#x27;, &#x27;text-primary&#x27;);
+        
+        pulseRing.style.animation = &#x27;none&#x27;;
+        setTimeout(() =&#x3E; {
+            pulseRing.style.animation = &#x27;&#x27;;
+        }, 10);
+    }
+    
+    function recordStep() {
+        if (!isRunning) return;
+        
+        const now = new Date();
+        const timestamp = now.getTime();
+        
+        totalSteps++;
+        stepTimestamps.push(timestamp);
+        
+        // &#x8BA1;&#x7B97;&#x8DDD;&#x79BB; (&#x516C;&#x91CC;) = &#x6B65;&#x6570; &#xD7; &#x6B65;&#x957F;(&#x7C73;) &#xF7; 1000
+        distance = (totalSteps * STEP_LENGTH) / 1000;
+        updateUI();
+        
+        if (window.navigator.vibrate) {
+            window.navigator.vibrate(20);
+        }
+    }
+    
+    function updateStats() {
+        if (!isRunning || !startTime) return;
+        
+        const now = new Date();
+        const durationMs = now - startTime;
+        const minutes = Math.floor(durationMs / 60000);
+        const seconds = Math.floor((durationMs % 60000) / 1000);
+        durationEl.textContent = &#x60;${minutes.toString().padStart(2, &#x27;0&#x27;)}:${seconds.toString().padStart(2, &#x27;0&#x27;)}&#x60;;
+        
+        // &#x8BA1;&#x7B97;&#x914D;&#x901F; (&#x5206;/&#x516C;&#x91CC;)
+        if (distance &#x3E; 0) {
+            const totalSeconds = durationMs / 1000;
+            const paceMinutes = Math.floor(totalSeconds / distance / 60);
+            const paceSeconds = Math.floor((totalSeconds / distance) % 60);
+            paceEl.textContent = &#x60;${paceMinutes.toString().padStart(2, &#x27;0&#x27;)}:${paceSeconds.toString().padStart(2, &#x27;0&#x27;)}&#x60;;
+        }
+        
+        updateUI();
+    }
+    
+    function updateUI() {
+        // &#x66F4;&#x65B0;&#x8DDD;&#x79BB;&#x663E;&#x793A;&#xFF0C;&#x4FDD;&#x7559;&#x4E24;&#x4F4D;&#x5C0F;&#x6570;
+        distanceEl.textContent = &#x60;${distance.toFixed(2)} &#x516C;&#x91CC;&#x60;;
+    }
+    
+    // &#x6B65;&#x9891;&#x5F15;&#x5BFC;
+    let guideInterval;
+    function startCadenceGuide() {
+        const intervalMs = 60000 / TARGET_CADENCE;
+        
+        if (guideInterval) {
+            clearInterval(guideInterval);
+        }
+        
+        let guideStep = () =&#x3E; {
+            if (isRunning) {
+                playBeep();
+                
+                pulseRing.style.transform = &#x27;scale(1.05)&#x27;;
+                
+                setTimeout(() =&#x3E; {
+                    if (isRunning) {
+                        pulseRing.style.transform = &#x27;&#x27;;
+                    }
+                }, 100);
+                
+                guideInterval = setTimeout(guideStep, intervalMs);
             }
-            
-            // 更新UI
-            updateUI();
-        }
+        };
         
-        // 更新UI显示
-        function updateUI() {
-            // 显示距离，保留两位小数
-            distanceEl.textContent = distance.toFixed(2);
-            totalStepsEl.textContent = totalSteps;
-        }
+        guideStep();
+    }
+    
+    // &#x97F3;&#x91CF;&#x952E;&#x63A7;&#x5236;
+    function setupVolumeKeyControl() {
+        let lastVolume = null;
         
-        // 步频引导提示
-        let guideInterval;
-        function startCadenceGuide() {
-            // 计算步频间隔 (毫秒)
-            const intervalMs = 60000 / TARGET_CADENCE;
-            
-            // 清除可能存在的旧定时器
-            if (guideInterval) {
-                clearInterval(guideInterval);
-            }
-            
-            // 创建新的引导定时器，使用setTimeout链提高可靠性
-            let guideStep = () => {
-                if (isRunning) {
-                    // 播放提示音
-                    playBeep();
-                    
-                    // 视觉脉冲增强
-                    pulseRing.style.transform = 'scale(1.05)';
-                    
-                    setTimeout(() => {
-                        if (isRunning) {
-                            pulseRing.style.transform = '';
-                        }
-                    }, 100);
-                    
-                    // 安排下一步
-                    guideInterval = setTimeout(guideStep, intervalMs);
-                }
-            };
-            
-            // 启动引导序列
-            guideStep();
-        }
+        // &#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x4E0D;&#x53EF;&#x89C1;&#x7684;&#x97F3;&#x9891;&#x5143;&#x7D20;&#x6765;&#x68C0;&#x6D4B;&#x97F3;&#x91CF;&#x53D8;&#x5316;
+        const audio = new Audio();
+        audio.src = &#x27;data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMQAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAeAAAmVgYAAAE4AAABAAgAZGF0YQAAAAA=&#x27;;
+        audio.load();
         
-        // 事件监听器
-        startBtn.addEventListener('click', startTracking);
-        stopBtn.addEventListener('click', stopTracking);
-        stepBtn.addEventListener('click', recordStep);
-        
-        // 信息模态框
-        infoBtn.addEventListener('click', () => {
-            infoModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        });
-        
-        function closeModal() {
-            infoModal.classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-        
-        closeInfoBtn.addEventListener('click', closeModal);
-        gotItBtn.addEventListener('click', closeModal);
-        
-        // 点击模态框外部关闭
-        infoModal.addEventListener('click', (e) => {
-            if (e.target === infoModal) {
-                closeModal();
-            }
-        });
-        
-        // 键盘快捷键支持
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                if (isRunning) {
-                    recordStep();
-                }
-            } else if (e.code === 'KeyS') {
+        setInterval(() =&#x3E; {
+            if (audio.volume !== lastVolume) {
+                // &#x97F3;&#x91CF;&#x53D1;&#x751F;&#x53D8;&#x5316;&#xFF0C;&#x89C6;&#x4E3A;&#x6309;&#x4E0B;&#x4E86;&#x97F3;&#x91CF;&#x952E;
                 if (isRunning) {
                     stopTracking();
                 } else {
                     startTracking();
                 }
-            }
-        });
-        
-        // 监听页面可见性变化
-        document.addEventListener('visibilitychange', () => {
-            if (isRunning) {
-                // 当页面重新可见时，确保音频上下文活跃
-                if (!document.hidden && audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
                 
-                // 尝试重新获取唤醒锁
-                if (document.visibilityState === 'visible' && isAppleDevice()) {
-                    requestWakeLock();
-                }
+                // &#x6062;&#x590D;&#x97F3;&#x91CF;&#xFF0C;&#x907F;&#x514D;&#x6301;&#x7EED;&#x89E6;&#x53D1;
+                audio.volume = lastVolume;
             }
-        });
-        
-        // 初始化
-        window.addEventListener('DOMContentLoaded', () => {
-            // 需要用户交互才能初始化音频上下文
-            const setupAudioOnInteraction = () => {
-                if (!audioContext) {
-                    initAudio();
-                }
-                document.removeEventListener('click', setupAudioOnInteraction);
-                document.removeEventListener('touchend', setupAudioOnInteraction);
-            };
-            
-            // 监听首次用户交互以初始化音频
-            document.addEventListener('click', setupAudioOnInteraction);
-            document.addEventListener('touchend', setupAudioOnInteraction);
-        });
-    </script>
-</body>
-</html>
+        }, 200);
+    }
     
+    // &#x4E8B;&#x4EF6;&#x76D1;&#x542C;&#x5668;
+    startBtn.addEventListener(&#x27;click&#x27;, startTracking);
+    stopBtn.addEventListener(&#x27;click&#x27;, stopTracking);
+    stepBtn.addEventListener(&#x27;click&#x27;, recordStep);
+    
+    // &#x4FE1;&#x606F;&#x6A21;&#x6001;&#x6846;
+    infoBtn.addEventListener(&#x27;click&#x27;, () =&#x3E; {
+        infoModal.classList.remove(&#x27;hidden&#x27;);
+        document.body.style.overflow = &#x27;hidden&#x27;;
+    });
+    
+    function closeModal() {
+        infoModal.classList.add(&#x27;hidden&#x27;);
+        document.body.style.overflow = &#x27;&#x27;;
+    }
+    
+    closeInfoBtn.addEventListener(&#x27;click&#x27;, closeModal);
+    gotItBtn.addEventListener(&#x27;click&#x27;, closeModal);
+    
+    infoModal.addEventListener(&#x27;click&#x27;, (e) =&#x3E; {
+        if (e.target === infoModal) {
+            closeModal();
+        }
+    });
+    
+    // &#x952E;&#x76D8;&#x5FEB;&#x6377;&#x952E;
+    document.addEventListener(&#x27;keydown&#x27;, (e) =&#x3E; {
+        if (e.code === &#x27;Space&#x27;) {
+            e.preventDefault();
+            if (isRunning) {
+                recordStep();
+            }
+        } else if (e.code === &#x27;KeyS&#x27;) {
+            e.preventDefault();
+            if (isRunning) {
+                stopTracking();
+            } else {
+                startTracking();
+            }
+        }
+    });
+    
+    // &#x9875;&#x9762;&#x53EF;&#x89C1;&#x6027;&#x53D8;&#x5316;
+    document.addEventListener(&#x27;visibilitychange&#x27;, () =&#x3E; {
+        if (isRunning) {
+            if (!document.hidden &#x26;&#x26; audioContext &#x26;&#x26; audioContext.state === &#x27;suspended&#x27;) {
+                audioContext.resume();
+            }
+            
+            if (document.visibilityState === &#x27;visible&#x27; &#x26;&#x26; isAppleDevice()) {
+                requestWakeLock();
+            }
+        }
+    });
+    
+    // &#x521D;&#x59CB;&#x5316;
+    window.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&#x3E; {
+        initDeviceSettings();
+        setupVolumeKeyControl();
+        
+        const setupAudioOnInteraction = () =&#x3E; {
+            if (!audioContext) {
+                initAudio();
+            }
+            document.removeEventListener(&#x27;click&#x27;, setupAudioOnInteraction);
+            document.removeEventListener(&#x27;touchend&#x27;, setupAudioOnInteraction);
+        };
+        
+        document.addEventListener(&#x27;click&#x27;, setupAudioOnInteraction);
+        document.addEventListener(&#x27;touchend&#x27;, setupAudioOnInteraction);
+    });
+&#x3C;/script&#x3E;
