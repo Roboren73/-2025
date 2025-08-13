@@ -74,9 +74,9 @@
         
         @keyframes heart-beat {
             0% { transform: scale(0.9); }
-            14% { transform: scale(1); }
+            14% { transform: scale(1.1); }
             28% { transform: scale(0.9); }
-            42% { transform: scale(1); }
+            42% { transform: scale(1.1); }
             70% { transform: scale(0.9); }
             100% { transform: scale(0.9); }
         }
@@ -109,12 +109,12 @@
             <p class="text-secondary font-medium">亲爱的妖怪，今天也要元气满满地跑步哦！</p>
         </div>
         
-        <!-- 红心显示区域 - 比例合适的红心 -->
+        <!-- 红心显示区域 - 调整为圆圈的50% -->
         <div class="relative mb-10 w-full max-w-md">
             <div id="pulseRing" class="w-full aspect-square rounded-full border-8 border-primary/20 flex items-center justify-center pulse-ring mx-auto"></div>
             <div id="heartContainer" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] rounded-full bg-white flex items-center justify-center shadow-lg">
-                <!-- 比例合适的红心图标，居中显示在圆圈内 -->
-                <i class="fa fa-heart text-[60%] text-red-500 heart-beat"></i>
+                <!-- 调整为圆圈的50%大小，增强视觉效果 -->
+                <i class="fa fa-heart text-[50%] text-red-500 heart-beat"></i>
             </div>
             <!-- 装饰元素 -->
             <div class="absolute -top-3 -left-3 w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white float">
@@ -142,9 +142,9 @@
             </button>
         </div>
         
-        <!-- 操作提示 -->
+        <!-- 操作提示 - 针对安卓优化 -->
         <div class="text-sm text-gray-500 mb-6 text-center">
-            <p>💡 手机音量键或电源键可控制开始/停止</p>
+            <p>💡 手机音量键或快速按电源键两次可控制开始/停止</p>
         </div>
         
         <!-- 数据统计 -->
@@ -178,7 +178,7 @@
         <!-- 添加到主屏幕提示按钮 -->
         <button id="addHomeBtn" class="mt-8 px-6 py-2 bg-pink-100 hover:bg-pink-200 text-primary rounded-lg text-sm flex items-center gap-2 transition-all-300 hidden ios-haptic">
             <i class="fa fa-home"></i>
-            <span>添加到主屏幕，方便下次使用</span>
+            <span>添加到桌面，方便下次使用</span>
         </button>
     </main>
 
@@ -194,7 +194,7 @@
             <div class="space-y-4 text-gray-700">
                 <p>跑步时跟着大红心的节拍跑就对啦，节奏刚刚好~</p>
                 <p>数据区域会显示你跑了多少公里，一步按0.7米计算哦~</p>
-                <p>可以使用手机音量键或电源键控制开始/停止，跑步时更方便~</p>
+                <p>安卓手机可快速按电源键两次或使用音量键控制开始/停止~</p>
                 <p class="pt-2 border-t border-pink-100"><i class="fa fa-heart text-primary mr-2"></i>
                 妖怪跑步的时候要注意安全，跑完步记得拉伸哦，爱你~</p>
             </div>
@@ -225,6 +225,8 @@
         let backgroundAudioBuffer = null;
         let backgroundAudioSource = null;
         let isInstalledPWA = false;
+        let powerButtonPressCount = 0;
+        let powerButtonTimeout = null;
         let screenStateChangeCount = 0;
         let lastScreenState = 'visible';
         let screenStateChangeTimeout = null;
@@ -235,8 +237,8 @@
         const TARGET_CADENCE = 180;
         // 步频计算窗口 (秒)
         const WINDOW_SECONDS = 10;
-        // 电源键双击检测时间间隔(毫秒)
-        const POWER_BUTTON_DELAY = 1000;
+        // 电源键双击检测时间间隔(毫秒) - 针对安卓优化为800ms
+        const POWER_BUTTON_DELAY = 800;
         
         // DOM元素
         const startBtn = document.getElementById('startBtn');
@@ -257,6 +259,11 @@
         // 音频上下文和提示音
         let audioContext = null;
         
+        // 检查是否是安卓设备
+        function isAndroidDevice() {
+            return /Android/.test(navigator.userAgent) && !window.MSStream;
+        }
+        
         // 检查是否是苹果设备
         function isAppleDevice() {
             return /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream;
@@ -270,7 +277,12 @@
         
         // 初始化设备相关设置
         function initDeviceSettings() {
-            if (isAppleDevice()) {
+            if (isAndroidDevice()) {
+                // 安卓设备始终显示添加到桌面按钮
+                addHomeBtn.classList.remove('hidden');
+                addHomeBtn.innerHTML = '<i class="fa fa-home"></i><span>添加到桌面，方便下次使用</span>';
+                statusIndicator.textContent = "亲爱的妖怪，准备好跑步了吗？";
+            } else if (isAppleDevice()) {
                 isInstalledPWA = checkPWAInstalled();
                 if (!isInstalledPWA) {
                     addHomeBtn.classList.remove('hidden');
@@ -285,25 +297,22 @@
                         addHomeBtn.classList.add('hidden');
                     }
                 });
-            } else {
-                addHomeBtn.classList.remove('hidden');
-                addHomeBtn.innerHTML = '<i class="fa fa-home"></i><span>添加到桌面，方便下次使用</span>';
             }
         }
         
         // 添加到主屏幕提示
         document.getElementById('addHomeBtn').addEventListener('click', () => {
-            if (isAppleDevice()) {
+            if (isAndroidDevice()) {
+                alert('妖怪，点击浏览器菜单（通常是右上角三个点），选择"添加到主屏幕"或"安装"，这样下次就方便打开啦~');
+            } else if (isAppleDevice()) {
                 alert('妖怪，点击Safari底部的分享按钮，选择"添加到主屏幕"，这样下次就好找啦~');
-            } else {
-                alert('妖怪，点击浏览器菜单，选择"添加到桌面"，这样下次就方便打开啦~');
             }
         });
         
-        // 请求唤醒锁
+        // 请求唤醒锁 - 针对安卓优化
         async function requestWakeLock() {
             try {
-                if ('wakeLock' in navigator && isAppleDevice()) {
+                if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
                     console.log('唤醒锁已获取');
                     
@@ -426,7 +435,7 @@
             }
         }
         
-        // 处理电源键/屏幕状态变化
+        // 处理电源键/屏幕状态变化 - 增强安卓设备支持
         function handleScreenStateChange() {
             // 检测屏幕状态变化
             const newState = document.visibilityState;
@@ -441,15 +450,46 @@
                     clearTimeout(screenStateChangeTimeout);
                 }
                 
-                // 设置超时来检测双击电源键
-                screenStateChangeTimeout = setTimeout(() => {
-                    // 两次状态变化（例如：亮屏->熄屏->亮屏）视为一次电源键双击
-                    if (screenStateChangeCount >= 2) {
-                        toggleRunningState();
-                    }
-                    screenStateChangeCount = 0;
-                }, POWER_BUTTON_DELAY);
+                // 对于安卓设备，优化检测逻辑
+                if (isAndroidDevice()) {
+                    // 任何屏幕状态变化都视为可能的电源键操作
+                    detectPowerButtonPress();
+                } else {
+                    // 设置超时来检测双击电源键
+                    screenStateChangeTimeout = setTimeout(() => {
+                        // 两次状态变化视为一次电源键双击
+                        if (screenStateChangeCount >= 2) {
+                            toggleRunningState();
+                        }
+                        screenStateChangeCount = 0;
+                    }, POWER_BUTTON_DELAY);
+                }
             }
+        }
+        
+        // 安卓设备专用电源键检测
+        function detectPowerButtonPress() {
+            // 增加按键计数
+            powerButtonPressCount++;
+            
+            // 清除之前的超时
+            if (powerButtonTimeout) {
+                clearTimeout(powerButtonTimeout);
+            }
+            
+            // 设置超时来检测双击
+            powerButtonTimeout = setTimeout(() => {
+                // 双击电源键才触发状态切换
+                if (powerButtonPressCount >= 2) {
+                    toggleRunningState();
+                    
+                    // 触发反馈，确认操作生效
+                    if (window.navigator.vibrate) {
+                        window.navigator.vibrate(50);
+                    }
+                }
+                powerButtonPressCount = 0;
+            }, POWER_BUTTON_DELAY);
         }
         
         // 切换跑步状态
@@ -477,9 +517,8 @@
             
             startBackgroundAudio();
             
-            if (isAppleDevice()) {
-                requestWakeLock();
-            }
+            // 安卓设备也请求唤醒锁
+            requestWakeLock();
             
             isRunning = true;
             startTime = new Date();
@@ -580,7 +619,7 @@
             distanceEl.textContent = `${distance.toFixed(2)} 公里`;
         }
         
-        // 步频引导
+        // 步频引导 - 增强动画效果
         let guideInterval;
         function startCadenceGuide() {
             const intervalMs = 60000 / TARGET_CADENCE;
@@ -593,11 +632,14 @@
                 if (isRunning) {
                     playBeep();
                     
-                    pulseRing.style.transform = 'scale(1.05)';
+                    // 增强脉冲效果
+                    pulseRing.style.transform = 'scale(1.08)';
+                    heartContainer.querySelector('.fa-heart').style.transform = 'scale(1.2)';
                     
                     setTimeout(() => {
                         if (isRunning) {
                             pulseRing.style.transform = '';
+                            heartContainer.querySelector('.fa-heart').style.transform = '';
                         }
                     }, 100);
                     
@@ -608,7 +650,7 @@
             guideStep();
         }
         
-        // 音量键控制
+        // 音量键控制 - 增强安卓支持
         function setupVolumeKeyControl() {
             let lastVolume = 0.5;
             
@@ -618,6 +660,9 @@
             audio.load();
             audio.volume = lastVolume;
             
+            // 安卓设备提高检测频率
+            const checkInterval = isAndroidDevice() ? 150 : 200;
+            
             setInterval(() => {
                 if (Math.abs(audio.volume - lastVolume) > 0.01) {
                     // 音量发生变化，视为按下了音量键
@@ -626,7 +671,7 @@
                     // 恢复音量，避免持续触发
                     lastVolume = audio.volume;
                 }
-            }, 200);
+            }, checkInterval);
         }
         
         // 事件监听器
@@ -675,6 +720,7 @@
             initDeviceSettings();
             setupVolumeKeyControl();
             
+            // 主动请求音频上下文初始化，提高安卓设备兼容性
             const setupAudioOnInteraction = () => {
                 if (!audioContext) {
                     initAudio();
@@ -685,6 +731,15 @@
             
             document.addEventListener('click', setupAudioOnInteraction);
             document.addEventListener('touchend', setupAudioOnInteraction);
+            
+            // 安卓设备额外的唤醒锁请求逻辑
+            if (isAndroidDevice()) {
+                document.addEventListener('click', () => {
+                    if (isRunning) {
+                        requestWakeLock();
+                    }
+                });
+            }
         });
     </script>
 </body>
