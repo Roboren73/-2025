@@ -52,6 +52,31 @@
             .ios-haptic {
                 -webkit-tap-highlight-color: transparent;
             }
+            .android-ripple {
+                position: relative;
+                overflow: hidden;
+            }
+            .android-ripple:after {
+                content: "";
+                display: block;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+                background-image: radial-gradient(circle, #000 10%, transparent 10.01%);
+                background-repeat: no-repeat;
+                background-position: 50%;
+                transform: scale(10, 10);
+                opacity: 0;
+                transition: transform .5s, opacity 1s;
+            }
+            .android-ripple:active:after {
+                transform: scale(0, 0);
+                opacity: .3;
+                transition: 0s;
+            }
             .start-btn {
                 @apply bg-gradient-to-r from-primary to-pink-500 text-white font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95;
             }
@@ -63,6 +88,9 @@
             }
             .stop-btn-inactive {
                 @apply bg-gradient-to-r from-gray-200 to-gray-300 text-gray-500 cursor-not-allowed;
+            }
+            .cadence-btn {
+                @apply bg-white text-dark border border-gray-200 rounded-full shadow hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95;
             }
         }
         
@@ -96,7 +124,7 @@
                 <i class="fa fa-heart text-primary text-2xl float"></i>
                 <h1 class="text-xl font-bold text-primary">给妖怪的跑步助手</h1>
             </div>
-            <button id="infoBtn" class="p-2 rounded-full hover:bg-pink-100 transition-all-300 ios-haptic">
+            <button id="infoBtn" class="p-2 rounded-full hover:bg-pink-100 transition-all-300 ios-haptic android-ripple">
                 <i class="fa fa-star text-accent"></i>
             </button>
         </div>
@@ -106,15 +134,14 @@
     <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center">
         <!-- 专属问候语 -->
         <div class="mb-6 text-center">
-            <p class="text-secondary font-medium">亲爱的妖怪，今天也要元气满满地跑步哦！</p>
+            <p id="greeting" class="text-secondary font-medium">亲爱的妖怪，今天也要元气满满地跑步哦！</p>
         </div>
         
-        <!-- 红心显示区域 - 使用视窗单位控制大小 -->
+        <!-- 红心显示区域 - 跨平台适配大小 -->
         <div class="relative mb-10 w-full max-w-md">
             <div id="pulseRing" class="w-full aspect-square rounded-full border-8 border-primary/20 flex items-center justify-center pulse-ring mx-auto"></div>
             <div id="heartContainer" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] rounded-full bg-white flex items-center justify-center shadow-lg">
-                <!-- 使用30vw视窗单位，确保在任何设备上都是屏幕宽度的30% -->
-                <i class="fa fa-heart text-[30vw] max-w-[200px] text-red-500 heart-beat"></i>
+                <i id="heartIcon" class="fa fa-heart text-red-500 heart-beat"></i>
             </div>
             <!-- 装饰元素 -->
             <div class="absolute -top-3 -left-3 w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white float">
@@ -125,26 +152,43 @@
             </div>
         </div>
         
+        <!-- 步频控制区域 -->
+        <div class="mb-8 flex flex-col items-center">
+            <p class="text-gray-600 mb-3">当前步频: <span id="currentCadence" class="font-bold text-primary">180</span> 步/分钟</p>
+            <div class="flex items-center gap-4">
+                <button id="decreaseCadence" class="cadence-btn w-12 h-12 flex items-center justify-center ios-haptic android-ripple">
+                    <i class="fa fa-minus text-xl"></i>
+                </button>
+                <div class="w-24 h-2 bg-gray-200 rounded-full relative">
+                    <div id="cadenceSlider" class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-primary rounded-full shadow-md"></div>
+                </div>
+                <button id="increaseCadence" class="cadence-btn w-12 h-12 flex items-center justify-center ios-haptic android-ripple">
+                    <i class="fa fa-plus text-xl"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">调整红心跳动节奏 (120-200步/分钟)</p>
+        </div>
+        
         <!-- 状态指示 -->
         <div id="statusIndicator" class="mb-8 px-6 py-3 rounded-full bg-pink-100 text-primary text-center transition-all-300">
             点击开始按钮，一起跑步吧~
         </div>
         
-        <!-- 控制按钮 - 保持显示不切换 -->
+        <!-- 控制按钮 - 跨平台适配样式 -->
         <div class="flex flex-col sm:flex-row gap-4 mb-10 w-full max-w-xs">
-            <button id="startBtn" class="start-btn px-8 py-4 flex items-center justify-center gap-2 ios-haptic">
+            <button id="startBtn" class="start-btn px-8 py-4 flex items-center justify-center gap-2 ios-haptic android-ripple">
                 <i class="fa fa-play text-lg"></i>
                 <span class="text-lg">开始跑步</span>
             </button>
-            <button id="stopBtn" class="stop-btn stop-btn-inactive px-8 py-4 flex items-center justify-center gap-2 ios-haptic">
+            <button id="stopBtn" class="stop-btn stop-btn-inactive px-8 py-4 flex items-center justify-center gap-2 ios-haptic android-ripple">
                 <i class="fa fa-stop text-lg"></i>
                 <span class="text-lg">休息一下</span>
             </button>
         </div>
         
-        <!-- 操作提示 - 针对安卓优化 -->
-        <div class="text-sm text-gray-500 mb-6 text-center">
-            <p>💡 手机音量键或快速按电源键两次可控制开始/停止</p>
+        <!-- 操作提示 - 跨平台适配 -->
+        <div id="controlHint" class="text-sm text-gray-500 mb-6 text-center">
+            <p>💡 点击按钮或使用快捷键控制开始/停止</p>
         </div>
         
         <!-- 数据统计 -->
@@ -170,13 +214,13 @@
         </div>
         
         <!-- 手动计步按钮 -->
-        <button id="stepBtn" class="mt-10 w-20 h-20 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-3xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all-300 ios-haptic" disabled>
+        <button id="stepBtn" class="mt-10 w-20 h-20 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-3xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all-300 ios-haptic android-ripple" disabled>
             <i class="fa fa-plus"></i>
         </button>
         <p class="text-gray-500 mt-3 text-sm">点击计数一步</p>
         
         <!-- 添加到主屏幕提示按钮 -->
-        <button id="addHomeBtn" class="mt-8 px-6 py-2 bg-pink-100 hover:bg-pink-200 text-primary rounded-lg text-sm flex items-center gap-2 transition-all-300 hidden ios-haptic">
+        <button id="addHomeBtn" class="mt-8 px-6 py-2 bg-pink-100 hover:bg-pink-200 text-primary rounded-lg text-sm flex items-center gap-2 transition-all-300 hidden ios-haptic android-ripple">
             <i class="fa fa-home"></i>
             <span>添加到桌面，方便下次使用</span>
         </button>
@@ -187,18 +231,19 @@
         <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl transform transition-all">
             <div class="flex justify-between items-start mb-4">
                 <h2 class="text-2xl font-bold text-primary">给我家妖怪的小提示</h2>
-                <button id="closeInfoBtn" class="text-gray-500 hover:text-gray-700 ios-haptic">
+                <button id="closeInfoBtn" class="text-gray-500 hover:text-gray-700 ios-haptic android-ripple">
                     <i class="fa fa-times text-xl"></i>
                 </button>
             </div>
-            <div class="space-y-4 text-gray-700">
-                <p>跑步时跟着大红心的节拍跑就对啦，节奏刚刚好~</p>
+            <div id="modalContent" class="space-y-4 text-gray-700">
+                <p>跑步时跟着大红心的节拍跑就对啦，节奏可以自己调整哦~</p>
+                <p>使用步频加减按钮可以调整红心跳动的节奏，适合不同的跑步速度~</p>
                 <p>数据区域会显示你跑了多少公里，一步按0.7米计算哦~</p>
-                <p>安卓手机可快速按电源键两次或使用音量键控制开始/停止~</p>
+                <p>可使用相应快捷方式控制开始/停止~</p>
                 <p class="pt-2 border-t border-pink-100"><i class="fa fa-heart text-primary mr-2"></i>
                 妖怪跑步的时候要注意安全，跑完步记得拉伸哦，爱你~</p>
             </div>
-            <button id="gotItBtn" class="mt-6 w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all-300 ios-haptic">
+            <button id="gotItBtn" class="mt-6 w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all-300 ios-haptic android-ripple">
                 知道啦，谢谢~
             </button>
         </div>
@@ -230,14 +275,19 @@
         let screenStateChangeCount = 0;
         let lastScreenState = 'visible';
         let screenStateChangeTimeout = null;
+        let isAndroid = false;
+        let isApple = false;
         
         // 步长(米) - 可根据实际情况调整
         const STEP_LENGTH = 0.7;
-        // 目标步频 (步/分钟)
-        const TARGET_CADENCE = 180;
+        // 步频范围 (步/分钟)
+        const MIN_CADENCE = 120;
+        const MAX_CADENCE = 200;
+        // 默认步频 (步/分钟)
+        let TARGET_CADENCE = 180;
         // 步频计算窗口 (秒)
         const WINDOW_SECONDS = 10;
-        // 电源键双击检测时间间隔(毫秒) - 针对安卓优化为800ms
+        // 电源键双击检测时间间隔(毫秒)
         const POWER_BUTTON_DELAY = 800;
         
         // DOM元素
@@ -250,23 +300,174 @@
         const statusIndicator = document.getElementById('statusIndicator');
         const pulseRing = document.getElementById('pulseRing');
         const heartContainer = document.getElementById('heartContainer');
+        const heartIcon = document.getElementById('heartIcon');
         const infoBtn = document.getElementById('infoBtn');
         const infoModal = document.getElementById('infoModal');
         const closeInfoBtn = document.getElementById('closeInfoBtn');
         const gotItBtn = document.getElementById('gotItBtn');
         const addHomeBtn = document.getElementById('addHomeBtn');
+        const greeting = document.getElementById('greeting');
+        const controlHint = document.getElementById('controlHint');
+        const modalContent = document.getElementById('modalContent');
+        const currentCadenceEl = document.getElementById('currentCadence');
+        const increaseCadenceBtn = document.getElementById('increaseCadence');
+        const decreaseCadenceBtn = document.getElementById('decreaseCadence');
+        const cadenceSlider = document.getElementById('cadenceSlider');
         
         // 音频上下文和提示音
         let audioContext = null;
         
-        // 检查是否是安卓设备
-        function isAndroidDevice() {
-            return /Android/.test(navigator.userAgent) && !window.MSStream;
+        // 设备检测
+        function detectDevice() {
+            const userAgent = navigator.userAgent;
+            isAndroid = /Android/.test(userAgent) && !window.MSStream;
+            isApple = /iPhone|iPad|iPod|Macintosh/.test(userAgent) && !window.MSStream;
+            
+            // 根据设备类型应用不同样式和行为
+            applyDeviceSpecificSettings();
         }
         
-        // 检查是否是苹果设备
-        function isAppleDevice() {
-            return /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream;
+        // 应用设备特定设置
+        function applyDeviceSpecificSettings() {
+            // 调整红心大小
+            if (isAndroid) {
+                // 安卓设备使用稍大的比例
+                heartIcon.classList.add('text-[35vw]', 'max-w-[220px]');
+            } else if (isApple) {
+                // 苹果设备使用标准比例
+                heartIcon.classList.add('text-[30vw]', 'max-w-[200px]');
+            }
+            
+            // 调整操作提示
+            if (isAndroid) {
+                controlHint.innerHTML = '<p>💡 手机音量键或快速按电源键两次可控制开始/停止</p>';
+                modalContent.innerHTML = `
+                    <p>跑步时跟着大红心的节拍跑就对啦，节奏可以自己调整哦~</p>
+                    <p>使用步频加减按钮可以调整红心跳动的节奏，适合不同的跑步速度~</p>
+                    <p>数据区域会显示你跑了多少公里，一步按0.7米计算哦~</p>
+                    <p>安卓手机可快速按电源键两次或使用音量键控制开始/停止~</p>
+                    <p class="pt-2 border-t border-pink-100"><i class="fa fa-heart text-primary mr-2"></i>
+                    妖怪跑步的时候要注意安全，跑完步记得拉伸哦，爱你~</p>
+                `;
+            } else if (isApple) {
+                controlHint.innerHTML = '<p>💡 可使用耳机线控或点击屏幕按钮控制开始/停止</p>';
+                modalContent.innerHTML = `
+                    <p>跑步时跟着大红心的节拍跑就对啦，节奏可以自己调整哦~</p>
+                    <p>使用步频加减按钮可以调整红心跳动的节奏，适合不同的跑步速度~</p>
+                    <p>数据区域会显示你跑了多少公里，一步按0.7米计算哦~</p>
+                    <p>苹果设备可使用耳机线控或屏幕按钮控制开始/停止~</p>
+                    <p class="pt-2 border-t border-pink-100"><i class="fa fa-heart text-primary mr-2"></i>
+                    妖怪跑步的时候要注意安全，跑完步记得拉伸哦，爱你~</p>
+                `;
+            }
+            
+            // 调整触觉反馈和交互样式
+            if (isApple) {
+                // 苹果设备移除安卓特有的波纹效果
+                document.querySelectorAll('.android-ripple').forEach(el => {
+                    el.classList.remove('android-ripple');
+                });
+            } else {
+                // 非苹果设备移除ios触觉样式
+                document.querySelectorAll('.ios-haptic').forEach(el => {
+                    el.classList.remove('ios-haptic');
+                });
+            }
+            
+            // 初始化设备相关设置
+            initDeviceSettings();
+        }
+        
+        // 更新步频显示和滑块位置
+        function updateCadenceDisplay() {
+            currentCadenceEl.textContent = TARGET_CADENCE;
+            
+            // 计算滑块位置 (0-100%)
+            const percentage = ((TARGET_CADENCE - MIN_CADENCE) / (MAX_CADENCE - MIN_CADENCE)) * 100;
+            cadenceSlider.style.left = `${percentage}%`;
+            
+            // 如果正在跑步，实时更新节奏
+            if (isRunning) {
+                startCadenceGuide();
+            }
+        }
+        
+        // 增加步频
+        function increaseCadence() {
+            if (TARGET_CADENCE < MAX_CADENCE) {
+                TARGET_CADENCE += 5; // 每次增加5步/分钟
+                updateCadenceDisplay();
+                
+                // 提供反馈
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(10);
+                }
+            }
+        }
+        
+        // 减少步频
+        function decreaseCadence() {
+            if (TARGET_CADENCE > MIN_CADENCE) {
+                TARGET_CADENCE -= 5; // 每次减少5步/分钟
+                updateCadenceDisplay();
+                
+                // 提供反馈
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(10);
+                }
+            }
+        }
+        
+        // 滑块控制步频
+        function setupCadenceSlider() {
+            const sliderContainer = cadenceSlider.parentElement;
+            let isDragging = false;
+            
+            // 计算点击位置对应的步频
+            function getCadenceFromPosition(clientX) {
+                const rect = sliderContainer.getBoundingClientRect();
+                const percentage = Math.min(100, Math.max(0, (clientX - rect.left) / rect.width * 100));
+                // 将百分比转换为步频值，取5的倍数
+                const cadence = Math.round((MIN_CADENCE + (MAX_CADENCE - MIN_CADENCE) * (percentage / 100)) / 5) * 5;
+                return cadence;
+            }
+            
+            // 鼠标/触摸事件
+            sliderContainer.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                TARGET_CADENCE = getCadenceFromPosition(e.clientX);
+                updateCadenceDisplay();
+            });
+            
+            sliderContainer.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                TARGET_CADENCE = getCadenceFromPosition(e.touches[0].clientX);
+                updateCadenceDisplay();
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    TARGET_CADENCE = getCadenceFromPosition(e.clientX);
+                    updateCadenceDisplay();
+                }
+            });
+            
+            document.addEventListener('touchmove', (e) => {
+                if (isDragging) {
+                    TARGET_CADENCE = getCadenceFromPosition(e.touches[0].clientX);
+                    updateCadenceDisplay();
+                    e.preventDefault();
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            
+            document.addEventListener('touchend', () => {
+                isDragging = false;
+            });
         }
         
         // 检查是否是PWA模式（从主屏幕打开）
@@ -277,24 +478,25 @@
         
         // 初始化设备相关设置
         function initDeviceSettings() {
-            if (isAndroidDevice()) {
+            if (isAndroid) {
                 // 安卓设备始终显示添加到桌面按钮
                 addHomeBtn.classList.remove('hidden');
                 addHomeBtn.innerHTML = '<i class="fa fa-home"></i><span>添加到桌面，方便下次使用</span>';
-                statusIndicator.textContent = "亲爱的妖怪，准备好跑步了吗？";
-            } else if (isAppleDevice()) {
+                greeting.textContent = "亲爱的妖怪，准备好跑步了吗？";
+            } else if (isApple) {
                 isInstalledPWA = checkPWAInstalled();
                 if (!isInstalledPWA) {
                     addHomeBtn.classList.remove('hidden');
                 } else {
                     addHomeBtn.classList.add('hidden');
-                    statusIndicator.textContent = "妖怪，从主屏幕打开啦，准备跑步吧~";
+                    greeting.textContent = "妖怪，从主屏幕打开啦，准备跑步吧~";
                 }
                 
                 window.matchMedia('(display-mode: standalone)').addEventListener('change', (evt) => {
                     isInstalledPWA = evt.matches;
                     if (isInstalledPWA) {
                         addHomeBtn.classList.add('hidden');
+                        greeting.textContent = "妖怪，从主屏幕打开啦，准备跑步吧~";
                     }
                 });
             }
@@ -302,14 +504,14 @@
         
         // 添加到主屏幕提示
         document.getElementById('addHomeBtn').addEventListener('click', () => {
-            if (isAndroidDevice()) {
+            if (isAndroid) {
                 alert('妖怪，点击浏览器菜单（通常是右上角三个点），选择"添加到主屏幕"或"安装"，这样下次就方便打开啦~');
-            } else if (isAppleDevice()) {
+            } else if (isApple) {
                 alert('妖怪，点击Safari底部的分享按钮，选择"添加到主屏幕"，这样下次就好找啦~');
             }
         });
         
-        // 请求唤醒锁 - 针对安卓优化
+        // 请求唤醒锁
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
@@ -427,15 +629,21 @@
                 oscillator1.stop(audioContext.currentTime + 0.2);
                 oscillator2.stop(audioContext.currentTime + 0.2);
                 
+                // 根据设备类型调整振动反馈
                 if (window.navigator.vibrate) {
-                    window.navigator.vibrate(30);
+                    if (isAndroid) {
+                        window.navigator.vibrate(30);
+                    } else if (isApple) {
+                        // 苹果设备使用更短的振动
+                        window.navigator.vibrate(20);
+                    }
                 }
             } catch (e) {
                 console.warn('播放提示音失败:', e);
             }
         }
         
-        // 处理电源键/屏幕状态变化 - 增强安卓设备支持
+        // 处理电源键/屏幕状态变化
         function handleScreenStateChange() {
             // 检测屏幕状态变化
             const newState = document.visibilityState;
@@ -451,11 +659,11 @@
                 }
                 
                 // 对于安卓设备，优化检测逻辑
-                if (isAndroidDevice()) {
+                if (isAndroid) {
                     // 任何屏幕状态变化都视为可能的电源键操作
                     detectPowerButtonPress();
-                } else {
-                    // 设置超时来检测双击电源键
+                } else if (isApple) {
+                    // 苹果设备使用不同的检测逻辑
                     screenStateChangeTimeout = setTimeout(() => {
                         // 两次状态变化视为一次电源键双击
                         if (screenStateChangeCount >= 2) {
@@ -517,7 +725,7 @@
             
             startBackgroundAudio();
             
-            // 安卓设备也请求唤醒锁
+            // 请求唤醒锁
             requestWakeLock();
             
             isRunning = true;
@@ -528,7 +736,7 @@
             stepTimestamps = [];
             lastStepTime = 0;
             
-            // 更新按钮状态（不隐藏，只改变样式）
+            // 更新按钮状态
             startBtn.classList.add('start-btn-inactive');
             stopBtn.classList.remove('stop-btn-inactive');
             
@@ -536,7 +744,7 @@
             stepBtn.classList.remove('bg-primary/10', 'hover:bg-primary/20');
             stepBtn.classList.add('bg-accent/20', 'hover:bg-accent/30', 'text-accent');
             
-            statusIndicator.textContent = `妖怪加油！跟着红心的节奏跑~`;
+            statusIndicator.textContent = `妖怪加油！当前步频: ${TARGET_CADENCE}步/分钟`;
             statusIndicator.classList.remove('bg-pink-100', 'text-primary');
             statusIndicator.classList.add('bg-secondary/10', 'text-secondary');
             
@@ -558,7 +766,7 @@
             releaseWakeLock();
             stopBackgroundAudio();
             
-            // 更新按钮状态（不隐藏，只改变样式）
+            // 更新按钮状态
             startBtn.classList.remove('start-btn-inactive');
             stopBtn.classList.add('stop-btn-inactive');
             
@@ -619,9 +827,10 @@
             distanceEl.textContent = `${distance.toFixed(2)} 公里`;
         }
         
-        // 步频引导 - 增强动画效果
+        // 步频引导
         let guideInterval;
         function startCadenceGuide() {
+            // 根据当前步频计算间隔时间(毫秒)
             const intervalMs = 60000 / TARGET_CADENCE;
             
             if (guideInterval) {
@@ -634,12 +843,12 @@
                     
                     // 增强脉冲效果
                     pulseRing.style.transform = 'scale(1.08)';
-                    heartContainer.querySelector('.fa-heart').style.transform = 'scale(1.2)';
+                    heartIcon.style.transform = 'scale(1.2)';
                     
                     setTimeout(() => {
                         if (isRunning) {
                             pulseRing.style.transform = '';
-                            heartContainer.querySelector('.fa-heart').style.transform = '';
+                            heartIcon.style.transform = '';
                         }
                     }, 100);
                     
@@ -650,8 +859,10 @@
             guideStep();
         }
         
-        // 音量键控制 - 增强安卓支持
+        // 音量键控制 - 主要针对安卓设备
         function setupVolumeKeyControl() {
+            if (!isAndroid) return; // 仅在安卓设备上启用
+            
             let lastVolume = 0.5;
             
             // 创建一个不可见的音频元素来检测音量变化
@@ -661,7 +872,7 @@
             audio.volume = lastVolume;
             
             // 安卓设备提高检测频率
-            const checkInterval = isAndroidDevice() ? 150 : 200;
+            const checkInterval = 150;
             
             setInterval(() => {
                 if (Math.abs(audio.volume - lastVolume) > 0.01) {
@@ -674,10 +885,32 @@
             }, checkInterval);
         }
         
+        // 耳机线控检测 - 主要针对苹果设备
+        function setupHeadphoneControl() {
+            if (!isApple) return; // 仅在苹果设备上启用
+            
+            document.addEventListener('keydown', (e) => {
+                // 检测耳机线控按键
+                if (e.code === 'MediaPlayPause') {
+                    e.preventDefault();
+                    toggleRunningState();
+                } else if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') {
+                    e.preventDefault();
+                    if (isRunning) {
+                        recordStep();
+                    }
+                }
+            });
+        }
+        
         // 事件监听器
         startBtn.addEventListener('click', startTracking);
         stopBtn.addEventListener('click', stopTracking);
         stepBtn.addEventListener('click', recordStep);
+        
+        // 步频控制按钮事件
+        increaseCadenceBtn.addEventListener('click', increaseCadence);
+        decreaseCadenceBtn.addEventListener('click', decreaseCadence);
         
         // 监听屏幕状态变化（用于检测电源键）
         document.addEventListener('visibilitychange', handleScreenStateChange);
@@ -712,15 +945,31 @@
             } else if (e.code === 'KeyS') {
                 e.preventDefault();
                 toggleRunningState();
+            } else if (e.code === 'ArrowUp') {
+                e.preventDefault();
+                increaseCadence();
+            } else if (e.code === 'ArrowDown') {
+                e.preventDefault();
+                decreaseCadence();
             }
         });
         
         // 初始化
         window.addEventListener('DOMContentLoaded', () => {
-            initDeviceSettings();
-            setupVolumeKeyControl();
+            // 首先检测设备类型
+            detectDevice();
             
-            // 主动请求音频上下文初始化，提高安卓设备兼容性
+            // 初始化步频显示
+            updateCadenceDisplay();
+            
+            // 设置步频滑块
+            setupCadenceSlider();
+            
+            // 根据设备类型设置不同的控制方式
+            setupVolumeKeyControl();
+            setupHeadphoneControl();
+            
+            // 主动请求音频上下文初始化
             const setupAudioOnInteraction = () => {
                 if (!audioContext) {
                     initAudio();
@@ -733,7 +982,7 @@
             document.addEventListener('touchend', setupAudioOnInteraction);
             
             // 安卓设备额外的唤醒锁请求逻辑
-            if (isAndroidDevice()) {
+            if (isAndroid) {
                 document.addEventListener('click', () => {
                     if (isRunning) {
                         requestWakeLock();
